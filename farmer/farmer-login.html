@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Login - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+
+<body>
+
+    <div class="auth-wrapper theme-farmer">
+        <div class="auth-container">
+            <div class="auth-image-side">
+                <div class="auth-image-text">
+                    <h3>Grow Your<br>Business</h3>
+                    <p>Reach thousands of customers directly.</p>
+                </div>
+            </div>
+
+            <div class="auth-form-side">
+                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                <div class="auth-header">
+                    <h2>Farmer Portal</h2>
+                    <p>Login to manage your crops</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required placeholder="farmer123">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: #666">New Farmer? <a href="farmer-register.html"
+                            style="color: #d35400; font-weight: 600">Register Here</a></p>
+                </div>
+                <a href="../index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Auto-redirect if already logged in
+        const currentUser = DB.getCurrentUser();
+        if (currentUser && currentUser.role === 'farmer') {
+            window.location.href = 'farmer-home.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const hashedPassword = Validation.hashPassword(password);
+
+            // Call OTP Verification popup before finalizing login
+            triggerOTPVerification(username, hashedPassword, 'farmer', (user) => {
+                window.location.href = 'farmer-home.html';
+            });
+        });
+    </script>
+
+</body>
+
+</html>

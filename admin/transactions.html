@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Transactions - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+ 
+<body>
+ 
+    <nav class="navbar admin-header">
+        <div class="container nav-flex">
+            <a href="admin-home.html" class="logo" style="color: var(--text-dark)">🛡️ AgriConnect Admin</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="admin-home.html">Dashboard</a>
+                <a href="farmers.html">Farmers</a>
+                <a href="customers.html">Customers</a>
+                <a href="transactions.html" style="color: var(--text-dark); font-weight:700">Transactions</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+ 
+    <div class="container fade-in" style="padding-top: 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h1>Platform Transactions</h1>
+            <span class="badge" style="background:#eee; padding:5px 10px; border-radius:10px; font-weight: 600;">Total Sales: RS <span id="totalSalesText">0</span></span>
+        </div>
+ 
+        <table class="user-table">
+            <caption>Platform Order Transactions List</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Order ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Crops Purchased</th>
+                    <th scope="col">Payment Method</th>
+                    <th scope="col">Total amount</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody id="transactionTableBody">
+                <!-- Populated by JS -->
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #999;">Loading transaction history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+ 
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        checkAuth('admin');
+ 
+        async function loadTransactions() {
+            const tableBody = document.getElementById('transactionTableBody');
+            const totalSalesText = document.getElementById('totalSalesText');
+            if (!tableBody) return;
+ 
+            try {
+                // Fetch orders via server API
+                const orders = await API.getOrders();
+                
+                // Get customer name mapping
+                const users = await API.getUsers();
+                const getCustName = (id) => {
+                    const cust = users.find(u => u.id === id);
+                    return cust ? cust.name : 'Guest Customer';
+                };
+ 
+                // Sum total sales
+                const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+                if (totalSalesText) totalSalesText.textContent = totalRevenue.toLocaleString();
+ 
+                if (orders.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color:#999; padding:20px;">No transaction records found.</td></tr>';
+                    return;
+                }
+ 
+                tableBody.innerHTML = orders.reverse().map(order => {
+                    const cropNames = order.items.map(item => `${item.name} (x${item.quantity})`).join(', ');
+                    
+                    let statusClass = 'status-pending';
+                    if (order.status === 'Accepted') statusClass = 'status-active';
+                    if (order.status === 'Rejected') statusClass = 'status-rejected';
+ 
+                    return `
+                        <tr>
+                            <td>#${order.id}</td>
+                            <td>${order.date}</td>
+                            <td>${getCustName(order.customerId)}</td>
+                            <td>${cropNames}</td>
+                            <td style="font-weight: 600;">${order.paymentMethod || 'Card'}</td>
+                            <td style="font-weight: 700; color: var(--primary-green);">RS ${order.total}</td>
+                            <td><span class="status-badge ${statusClass}">${order.status || 'Pending'}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error fetching transactions:', err);
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color:red; padding:20px;">Failed to load transaction data. Is the server running?</td></tr>';
+            }
+        }
+ 
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTransactions();
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            if (menuBtn && navLinks) {
+                menuBtn.addEventListener('click', () => {
+                    menuBtn.classList.toggle('active');
+                    navLinks.classList.toggle('active');
+                    document.body.classList.toggle('no-scroll');
+                });
+            }
+        });
+    </script>
+ 
+</body>
+ 
+</html>

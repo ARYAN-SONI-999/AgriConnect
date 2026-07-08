@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Customer - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+
+<body>
+
+    <div class="auth-wrapper theme-customer">
+        <div class="auth-container">
+            <div class="auth-image-side">
+                <div class="auth-image-text">
+                    <h3>Join the<br>Community</h3>
+                    <p>Experience the freshest produce every day.</p>
+                </div>
+            </div>
+
+            <div class="auth-form-side">
+                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                <div class="auth-header">
+                    <h2>Create Account</h2>
+                    <p>Sign up as a new Customer</p>
+                </div>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required placeholder="Create a username">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="text" id="mobile" placeholder="10-digit number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit">Sign Up</button>
+                </form>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: #666">Already have an account? <a href="customer-login.html"
+                            style="color: #11998e; font-weight: 600">Login</a></p>
+                </div>
+                <a href="../index.html" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const mobile = document.getElementById('mobile').value;
+            const password = document.getElementById('password').value;
+
+            if (!Validation.validateEmail(email)) {
+                showToast('Invalid Email Address!', 'error');
+                return;
+            }
+
+            if (!Validation.validateMobile(mobile)) {
+                showToast('Invalid Mobile Number!', 'error');
+                return;
+            }
+
+            const hashedPassword = Validation.hashPassword(password);
+
+            try {
+                await DB.registerUser({ name, username, email, mobile, password: hashedPassword, role: 'customer' });
+                showToast('Registration Successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'customer-login.html';
+                }, 1500);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

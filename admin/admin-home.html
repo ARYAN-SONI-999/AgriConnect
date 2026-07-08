@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+
+    <nav class="navbar admin-header">
+        <div class="container nav-flex">
+            <a href="admin-home.html" class="logo" style="color: var(--text-dark)">🛡️ AgriConnect Admin</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="admin-home.html" style="color: var(--text-dark); font-weight:700">Dashboard</a>
+                <a href="farmers.html">Farmers</a>
+                <a href="customers.html">Customers</a>
+                <a href="transactions.html">Transactions</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container fade-in" style="padding-top: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Platform Overview</h1>
+            <p style="color: var(--text-medium); font-weight: 500;" id="currentDate"></p>
+        </div>
+
+        <div class="stat-grid" style="margin-bottom: 30px;">
+            <div class="stat-card admin-card">
+                <h3>Total Farmers</h3>
+                <div class="stat-number" id="farmerCount">0</div>
+            </div>
+            <div class="stat-card admin-card">
+                <h3>Total Customers</h3>
+                <div class="stat-number" id="customerCount">0</div>
+            </div>
+            <div class="stat-card admin-card">
+                <h3>Total Revenue</h3>
+                <div class="stat-number" style="color: var(--primary-green)">RS <span id="totalRevenue">0</span></div>
+            </div>
+        </div>
+
+        <!-- Recent Orders Section -->
+        <div class="card">
+            <h3>Recent Orders</h3>
+            <div id="recentOrdersList" style="margin-top: 15px;">
+                <!-- Populated by JS -->
+                <p style="color: #999; text-align: center;">No recent orders</p>
+            </div>
+            <a href="transactions.html"
+                style="display: block; text-align: center; margin-top: 15px; color: var(--primary-green); font-weight: 600; font-size: 0.9rem;">View
+                All Custom Transactions</a>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+
+</html>

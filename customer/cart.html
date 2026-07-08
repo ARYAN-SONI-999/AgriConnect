@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/customer.css">
+    <style>
+        .cart-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cart-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+
+        .cart-details {
+            flex-grow: 1;
+        }
+
+        .cart-price {
+            font-weight: 700;
+            color: var(--primary-green);
+            font-size: 1.1rem;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 30px 0;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar customer-header">
+        <div class="container nav-flex">
+            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="customer-home.html">Home</a>
+                <a href="cart.html" style="color: var(--primary-green)">
+                    🛒 <span id="cartCount" class="cart-count">0</span>
+                </a>
+                <a href="profile.html">Profile</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container fade-in" style="padding-top: 40px;">
+        <h1>Shopping Cart</h1>
+
+        <div id="cartItemsContainer">
+            <!-- Populated by JS -->
+        </div>
+
+        <div id="cartSummary" style="display: none;">
+            <div class="cart-total">Total: RS <span id="totalAmount">0</span></div>
+            <div style="text-align: right;">
+                <button onclick="clearCart()" class="btn btn-secondary" style="margin-right: 10px;">Clear Cart</button>
+                <a href="payment.html" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/customer.js"></script>
+    <script>
+        function renderCart() {
+            const cart = DB.getCart();
+            const container = document.getElementById('cartItemsContainer');
+            const summary = document.getElementById('cartSummary');
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-cart"><h3>Your cart is empty</h3><a href="customer-home.html" class="btn btn-secondary" style="margin-top: 20px">Start Shopping</a></div>';
+                summary.style.display = 'none';
+                return;
+            }
+
+            summary.style.display = 'block';
+            let total = 0;
+
+            container.innerHTML = cart.map(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                return `
+                    <div class="cart-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="${item.image.startsWith('http') || item.image.startsWith('..') ? item.image : '../images/' + item.image}" onerror="this.src='https://placehold.co/100?text=${item.name}'" class="cart-img" alt="${item.name}">
+                            <div class="cart-details">
+                                <h3 style="margin: 0; color: var(--text-dark);">${item.name}</h3>
+                                <p style="margin: 5px 0 0 0; color: var(--text-muted);">Price: RS ${item.price}/kg</p>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                                    <button class="btn-qty" onclick="changeQuantity(${item.id}, -1)" style="padding: 4px 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; cursor: pointer; font-weight: 700; font-size: 1rem;">-</button>
+                                    <span style="font-weight: 700; font-size: 1rem; min-width: 20px; text-align: center;">${item.quantity}</span>
+                                    <button class="btn-qty" onclick="changeQuantity(${item.id}, 1)" style="padding: 4px 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; cursor: pointer; font-weight: 700; font-size: 1rem;">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-price" style="font-size: 1.2rem; font-weight: 700; color: var(--primary-green);">RS ${itemTotal}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('totalAmount').textContent = total;
+        }
+
+        function changeQuantity(productId, delta) {
+            let cart = DB.getCart();
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== productId);
+                }
+                localStorage.setItem(DB.CART, JSON.stringify(cart));
+                renderCart();
+                updateCartCount();
+            }
+        }
+
+        function clearCart() {
+            DB.clearCart();
+            renderCart();
+            updateCartCount();
+            showToast('Shopping cart cleared.', 'info');
+        }
+
+        renderCart();
+    </script>
+</body>
+
+</html>

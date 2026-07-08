@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/customer.css">
+</head>
+
+<body>
+
+    <nav class="navbar customer-header">
+        <div class="container nav-flex">
+            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="customer-home.html">Home</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container fade-in" style="padding-top: 40px;">
+        <h1>My Profile</h1>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; margin-top: 30px;">
+            <!-- User Info -->
+            <div class="card">
+                <h3>Account Details</h3>
+                <form id="profileForm" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="nameInput">Full Name</label>
+                        <input type="text" id="nameInput" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="emailInput">Email Address</label>
+                        <input type="email" id="emailInput" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="mobileInput">Mobile Number</label>
+                        <input type="text" id="mobileInput" required placeholder="10-digit number" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="locationInput">Delivery Address</label>
+                        <input type="text" id="locationInput" placeholder="Address / Location" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; border:none; background: var(--primary-green);">Save Profile</button>
+                </form>
+            </div>
+
+            <!-- Order History -->
+            <div class="card">
+                <h3>Order History</h3>
+                <div id="orderHistory" style="margin-top: 20px;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/customer.js"></script>
+    <script>
+        const user = DB.getCurrentUser();
+        if (user) {
+            document.getElementById('nameInput').value = user.name || '';
+            document.getElementById('emailInput').value = user.email || '';
+            document.getElementById('mobileInput').value = user.mobile || '';
+            document.getElementById('locationInput').value = user.location || '';
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!user) return;
+
+            const name = document.getElementById('nameInput').value;
+            const email = document.getElementById('emailInput').value;
+            const mobile = document.getElementById('mobileInput').value;
+            const location = document.getElementById('locationInput').value;
+
+            try {
+                const res = await API.updateUser(user.id, { name, email, location, mobile });
+                if (res.success) {
+                    const updatedUser = { ...user, name, email, location, mobile };
+                    localStorage.setItem(DB.CURRENT_USER, JSON.stringify(updatedUser));
+
+                    // Update user in local storage array cache
+                    let users = DB.getUsers();
+                    const idx = users.findIndex(u => u.id === user.id);
+                    if (idx !== -1) {
+                        users[idx] = { ...users[idx], name, email, location, mobile };
+                        localStorage.setItem(DB.USERS, JSON.stringify(users));
+                    }
+
+                    showToast('Profile updated successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
+            } catch (err) {
+                showToast('Failed to update profile: ' + err.message, 'error');
+            }
+        });
+
+        const orders = JSON.parse(localStorage.getItem(DB.ORDERS) || '[]');
+        // Filter orders for the current customer
+        const userOrders = user ? orders.filter(o => o.customerId === user.id) : [];
+
+        const orderContainer = document.getElementById('orderHistory');
+        if (userOrders.length === 0) {
+            orderContainer.innerHTML = '<p class="text-muted">No orders yet.</p>';
+        } else {
+            orderContainer.innerHTML = userOrders.reverse().map(order => `
+                <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>Order #${order.id}</strong>
+                        <span style="color: var(--primary-green)">RS ${order.total}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">
+                        ${order.date} • ${itemCount(order.items)} Items • ${order.status}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function itemCount(items) {
+            return items.reduce((sum, i) => sum + i.quantity, 0);
+        }
+    </script>
+</body>
+
+</html>

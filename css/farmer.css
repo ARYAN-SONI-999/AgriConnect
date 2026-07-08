@@ -1,0 +1,111 @@
+/* Farmer Portal Styles */
+
+.farmer-header {
+    background-color: var(--white);
+    border-bottom: 2px solid var(--vibrant-orange);
+}
+
+.stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+  }
+
+  .stat-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      border-top: 4px solid var(--vibrant-orange);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .stat-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(243, 156, 18, 0.15);
+  }
+
+  .stat-number {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--vibrant-orange);
+      margin: 10px 0;
+      letter-spacing: -0.03em;
+  }
+
+.action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.crop-list {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.crop-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.crop-item:last-child {
+    border-bottom: none;
+}
+
+.crop-item:hover {
+    background: #fff8f0;
+}
+
+.crop-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.crop-details {
+    flex-grow: 1;
+}
+
+.crop-actions button {
+    margin-left: 10px;
+    padding: 6px 14px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 50px;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    background: white;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.crop-actions button:hover {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1);
+}
+
+.btn-delete {
+    color: #e74c3c;
+    border-color: #fca5a5 !important;
+}
+
+.btn-delete:hover {
+    background: #e74c3c !important;
+    border-color: #e74c3c !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2) !important;
+}

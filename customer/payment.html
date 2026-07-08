@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/customer.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-row {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 10px;
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar customer-header">
+        <div class="container nav-flex">
+            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="customer-home.html">Home</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container fade-in" style="padding-top: 40px;">
+        <div class="payment-container">
+            <h2 style="margin-bottom: 20px;">Secure Checkout</h2>
+
+            <div class="summary-box">
+                <h4>Order Summary</h4>
+                <div id="orderItems"></div>
+                <div class="summary-row total-row">
+                    <span>Total to Pay</span>
+                    <span>RS <span id="payAmount">0</span></span>
+                </div>
+            </div>
+
+            <form id="paymentForm" style="margin-top: 30px;">
+                <h4 style="margin-bottom: 15px;">Payment Details</h4>
+                <div class="form-group">
+                    <label for="cardName">Cardholder Name</label>
+                    <input type="text" id="cardName" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input type="text" id="cardNumber" required placeholder="0000 0000 0000 0000">
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="expiry">Expiry</label>
+                        <input type="text" id="expiry" required placeholder="MM/YY">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" required placeholder="123">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Pay Now</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/customer.js"></script>
+    <script src="../js/validation.js"></script>
+    <script>
+        const cart = DB.getCart() || [];
+        if (cart.length === 0) {
+            showToast('Your cart is empty! Redirecting...', 'warning');
+            setTimeout(() => {
+                window.location.href = 'customer-home.html';
+            }, 1500);
+        }
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+        document.getElementById('payAmount').textContent = total;
+        document.getElementById('orderItems').innerHTML = cart.map(item => `
+            <div class="summary-row">
+                <span>${item.name} x${item.quantity}</span>
+                <span>RS ${item.price * item.quantity}</span>
+            </div>
+        `).join('');
+
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const cardNum = document.getElementById('cardNumber').value;
+
+            if (!Validation.validateCard(cardNum)) {
+                showToast('Invalid Card Number! Please check and try again.', 'error');
+                return;
+            }
+
+            // Simulate processing
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = 'Processing...';
+            btn.disabled = true;
+
+            setTimeout(async () => {
+                try {
+                    await DB.placeOrder({
+                        items: cart,
+                        total: total,
+                        status: 'Pending',
+                        paymentMethod: 'Card'
+                    });
+                } catch(err) {
+                    console.warn('Order save error:', err);
+                }
+                window.location.href = 'order-placed.html';
+            }, 2000);
+        });
+    </script>
+</body>
+
+</html>

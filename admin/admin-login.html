@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+
+<body>
+
+    <div class="auth-wrapper theme-admin">
+        <div class="auth-container">
+            <div class="auth-image-side">
+                <div class="auth-image-text">
+                    <h3>Admin<br>Console</h3>
+                    <p>Secure access for system administrators.</p>
+                </div>
+            </div>
+
+            <div class="auth-form-side">
+                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                <div class="auth-header">
+                    <h2>Restricted Access</h2>
+                    <p>Login to Admin Dashboard</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required placeholder="admin123">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit">Login Access</button>
+                </form>
+
+                <a href="../index.html" class="back-link" style="margin-top: 20px;">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Auto-redirect if already logged in
+        const currentUser = DB.getCurrentUser();
+        if (currentUser && currentUser.role === 'admin') {
+            window.location.href = 'admin-home.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const hashedPassword = Validation.hashPassword(password);
+
+            // Call OTP Verification popup before finalizing login
+            triggerOTPVerification(username, hashedPassword, 'admin', (user) => {
+                window.location.href = 'admin-home.html';
+            });
+        });
+    </script>
+</body>
+
+</html>

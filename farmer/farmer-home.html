@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/farmer.css">
+</head>
+
+<body>
+
+    <nav class="navbar farmer-header">
+        <div class="container nav-flex">
+            <a href="farmer-home.html" class="logo">🌱 AgriConnect</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="farmer-home.html" style="color: var(--vibrant-orange)">Dashboard</a>
+                <a href="orders.html">Orders</a>
+                <a href="profit.html">Profit</a>
+                <a href="profile.html">Profile</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container fade-in" style="padding-top: 40px;">
+        <h1>Dashboard</h1>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Manage your farm inventory and sales.</p>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <h3>Active Crops</h3>
+                <div class="stat-number" id="cropCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Orders</h3>
+                <div class="stat-number" id="pendingOrdersCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Earnings</h3>
+                <div class="stat-number" id="totalEarningsAmount">RS 0</div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <h2>My Crops</h2>
+            <a href="add-crop.html" class="btn btn-primary" style="background-color: var(--vibrant-orange)">+ Add New
+                Crop</a>
+        </div>
+
+        <div class="crop-list" id="cropList">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js?v=2"></script>
+    <script src="../js/auth.js?v=2"></script>
+    <script src="../js/farmer.js?v=2"></script>
+</body>
+
+</html>

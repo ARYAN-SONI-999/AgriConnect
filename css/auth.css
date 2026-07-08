@@ -1,0 +1,275 @@
+/* High-End Authentication Styles - Split Card Design */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: hsl(140, 40%, 98%);
+    background-image:
+        radial-gradient(at 0% 0%, hsla(142, 72%, 29%, 0.12) 0, transparent 60%),
+        radial-gradient(at 50% 0%, hsla(24, 95%, 53%, 0.08) 0, transparent 60%),
+        radial-gradient(at 100% 0%, hsla(142, 80%, 14%, 0.12) 0, transparent 60%);
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px;
+}
+
+.auth-container {
+    display: flex;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    min-height: 550px;
+    animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Left Side - Image */
+.auth-image-side {
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
+    color: white;
+}
+
+.auth-image-side::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.8));
+}
+
+.auth-image-text {
+    position: relative;
+    z-index: 2;
+}
+
+.auth-image-text h3 {
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.auth-image-text p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Right Side - Form */
+.auth-form-side {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+}
+
+.auth-header {
+    margin-bottom: 30px;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    display: block;
+    text-decoration: none;
+    color: #333;
+}
+
+.auth-header h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0 0 5px 0;
+}
+
+.auth-header p {
+    color: #777;
+    margin: 0;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #eee;
+    background: #f9f9f9;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    background: white;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+}
+
+/* Button & Links */
+button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 25px;
+    display: block;
+    color: #888;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    color: #333;
+}
+
+/* Themes */
+/* Customer (Green/Teal) - Fresh Produce Box */
+.theme-customer .auth-image-side {
+    background-image: url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80');
+}
+
+.theme-customer button {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+}
+
+.theme-customer .auth-header h2 {
+    color: #11998e;
+}
+
+.theme-customer input:focus {
+    border-color: #11998e;
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.1);
+}
+
+.theme-customer .logo-text {
+    color: #11998e;
+}
+
+/* Farmer (Orange/Sunset) - Field/Growth */
+.theme-farmer .auth-image-side {
+    background-image: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80');
+}
+
+.theme-farmer button {
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    color: white;
+}
+
+.theme-farmer .auth-header h2 {
+    color: #d35400;
+}
+
+.theme-farmer input:focus {
+    border-color: #ff9966;
+    box-shadow: 0 4px 12px rgba(255, 153, 102, 0.1);
+}
+
+.theme-farmer .logo-text {
+    color: #d35400;
+}
+
+/* Admin (Dark/Blue) - Tech/Nature */
+.theme-admin .auth-image-side {
+    background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80');
+}
+
+.theme-admin button {
+    background: linear-gradient(135deg, #232526, #414345);
+    color: white;
+}
+
+.theme-admin .auth-header h2 {
+    color: #232526;
+}
+
+.theme-admin input:focus {
+    border-color: #232526;
+    box-shadow: 0 4px 12px rgba(35, 37, 38, 0.1);
+}
+
+.theme-admin .logo-text {
+    color: #232526;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .auth-image-side {
+        padding: 40px 20px;
+        min-height: 200px;
+        flex: none;
+    }
+
+    .auth-form-side {
+        padding: 30px 20px;
+    }
+}

@@ -1,0 +1,548 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "name": "System Admin",
+      "username": "admin",
+      "email": "admin@agri.com",
+      "password": "YWRtaW4=",
+      "role": "admin"
+    },
+    {
+      "id": "f1",
+      "name": "John Farmer (Farmer 1)",
+      "username": "farmer1",
+      "email": "farmer1@agri.com",
+      "password": "cGFzczE=",
+      "role": "farmer",
+      "location": "Green Valley",
+      "mobile": "09537502906"
+    },
+    {
+      "id": "f2",
+      "name": "Sarah Miller (Farmer 2)",
+      "username": "farmer2",
+      "email": "farmer2@agri.com",
+      "password": "cGFzczI=",
+      "role": "farmer",
+      "location": "Sunny Hills"
+    },
+    {
+      "id": "c1",
+      "name": "Alice Customer",
+      "username": "customer",
+      "email": "customer@agri.com",
+      "password": "cGFzczE=",
+      "role": "customer"
+    },
+    {
+      "id": "1783533751537",
+      "name": "Shrey Doshi",
+      "username": "Shrey",
+      "email": "shrey@agri.com",
+      "password": "U2hyZXlAMjAwMA==",
+      "role": "customer",
+      "location": null,
+      "mobile": "9485648265"
+    },
+    {
+      "id": "1783533806272",
+      "name": "abc",
+      "username": "abc",
+      "email": "abc@agri.com",
+      "password": "YWJjQDEyMw==",
+      "role": "customer",
+      "location": null,
+      "mobile": "8758395372"
+    }
+  ],
+  "products": [
+    {
+      "id": 101,
+      "name": "Organic Kale",
+      "category": "organic",
+      "price": 80,
+      "farmerId": "f1",
+      "image": "../photos/kale.jpeg",
+      "type": "Vegetable"
+    },
+    {
+      "id": 102,
+      "name": "Red Tomatoes",
+      "category": "organic",
+      "price": 45,
+      "farmerId": "f1",
+      "image": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80",
+      "type": "Vegetable"
+    },
+    {
+      "id": 103,
+      "name": "Fresh Spinach",
+      "category": "organic",
+      "price": 60,
+      "farmerId": "f1",
+      "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80",
+      "type": "Vegetable"
+    },
+    {
+      "id": 104,
+      "name": "Organic Avocados",
+      "category": "organic",
+      "price": 200,
+      "farmerId": "f2",
+      "image": "../photos/avocado.jpeg",
+      "type": "Fruit"
+    },
+    {
+      "id": 105,
+      "name": "Sweet Potatoes",
+      "category": "organic",
+      "price": 55,
+      "farmerId": "f1",
+      "image": "../photos/sweetpoptato.webp",
+      "type": "Vegetable"
+    },
+    {
+      "id": 107,
+      "name": "Bell Peppers",
+      "category": "organic",
+      "price": 120,
+      "farmerId": "f2",
+      "image": "../photos/bellpeper.jpeg",
+      "type": "Vegetable"
+    },
+    {
+      "id": 108,
+      "name": "Organic Carrots",
+      "category": "organic",
+      "price": 50,
+      "farmerId": "f1",
+      "image": "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80",
+      "type": "Vegetable"
+    },
+    {
+      "id": 109,
+      "name": "Crisp Cucumber",
+      "category": "organic",
+      "price": 40,
+      "farmerId": "f1",
+      "image": "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=400&q=80",
+      "type": "Vegetable"
+    },
+    {
+      "id": 110,
+      "name": "Fresh Strawberries",
+      "category": "organic",
+      "price": 150,
+      "farmerId": "f1",
+      "image": "../photos/strawbeey.webp",
+      "type": "Fruit"
+    },
+    {
+      "id": 111,
+      "name": "Blueberries",
+      "category": "organic",
+      "price": 180,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=400&q=80",
+      "type": "Fruit"
+    },
+    {
+      "id": 112,
+      "name": "Organic Honey",
+      "category": "organic",
+      "price": 350,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=400&q=80",
+      "type": "Pantry"
+    },
+    {
+      "id": 113,
+      "name": "Brown Rice",
+      "category": "organic",
+      "price": 95,
+      "farmerId": "f1",
+      "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80",
+      "type": "Grains"
+    },
+    {
+      "id": 114,
+      "name": "Quinoa",
+      "category": "organic",
+      "price": 220,
+      "farmerId": "f1",
+      "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80",
+      "type": "Grains"
+    },
+    {
+      "id": 115,
+      "name": "Raw Almonds",
+      "category": "organic",
+      "price": 400,
+      "farmerId": "f1",
+      "image": "../photos/raw_almonds.jpeg",
+      "type": "Nuts"
+    },
+    {
+      "id": 201,
+      "name": "Premium Bananas",
+      "category": "fruits",
+      "price": 60,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=400&q=80",
+      "type": "Fruit"
+    },
+    {
+      "id": 202,
+      "name": "Green Grapes",
+      "category": "fruits",
+      "price": 100,
+      "farmerId": "f2",
+      "image": "../photos/green-graps.jpg",
+      "type": "Fruit"
+    },
+    {
+      "id": 203,
+      "name": "Red Apples",
+      "category": "fruits",
+      "price": 140,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80",
+      "type": "Fruit"
+    },
+    {
+      "id": 204,
+      "name": "Juicy Oranges",
+      "category": "fruits",
+      "price": 80,
+      "farmerId": "f1",
+      "image": "../photos/orange.webp",
+      "type": "Citrus"
+    },
+    {
+      "id": 205,
+      "name": "Ripe Mangoes",
+      "category": "fruits",
+      "price": 150,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=400&q=80",
+      "type": "Tropical"
+    },
+    {
+      "id": 206,
+      "name": "Pineapple",
+      "category": "fruits",
+      "price": 90,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=400&q=80",
+      "type": "Tropical"
+    },
+    {
+      "id": 207,
+      "name": "Watermelon",
+      "category": "fruits",
+      "price": 40,
+      "farmerId": "f2",
+      "image": "../photos/watermelon-6640124_1280.jpg",
+      "type": "Melon"
+    },
+    {
+      "id": 208,
+      "name": "Pomegranates",
+      "category": "fruits",
+      "price": 160,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1615484477778-ca3b77940c25?auto=format&fit=crop&w=400&q=80",
+      "type": "Exotic"
+    },
+    {
+      "id": 209,
+      "name": "Dragon Fruit",
+      "category": "fruits",
+      "price": 250,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80",
+      "type": "Exotic"
+    },
+    {
+      "id": 210,
+      "name": "Kiwi",
+      "category": "fruits",
+      "price": 200,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=400&q=80",
+      "type": "Berry"
+    },
+    {
+      "id": 211,
+      "name": "Papaya",
+      "category": "fruits",
+      "price": 60,
+      "farmerId": "f2",
+      "image": "../photos/papaya.jpeg",
+      "type": "Tropical"
+    },
+    {
+      "id": 212,
+      "name": "Cherries",
+      "category": "fruits",
+      "price": 300,
+      "farmerId": "f2",
+      "image": "../photos/cherry.jpg",
+      "type": "Berry"
+    },
+    {
+      "id": 213,
+      "name": "Pears",
+      "category": "fruits",
+      "price": 110,
+      "farmerId": "f2",
+      "image": "../photos/pears.jpeg",
+      "type": "Pome"
+    },
+    {
+      "id": 214,
+      "name": "Peaches",
+      "category": "fruits",
+      "price": 130,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1595123550441-d377e017de6a?auto=format&fit=crop&w=400&q=80",
+      "type": "Stone Fruit"
+    },
+    {
+      "id": 215,
+      "name": "Plums",
+      "category": "fruits",
+      "price": 120,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=400&q=80",
+      "type": "Stone Fruit"
+    },
+    {
+      "id": 301,
+      "name": "Winter Squash",
+      "category": "seasonal",
+      "price": 70,
+      "farmerId": "f2",
+      "image": "../photos/winter_squash.jpeg",
+      "type": "Winter"
+    },
+    {
+      "id": 302,
+      "name": "Pumpkins",
+      "category": "seasonal",
+      "price": 150,
+      "farmerId": "f2",
+      "image": "../photos/pumpkin.jpeg",
+      "type": "Autumn"
+    },
+    {
+      "id": 303,
+      "name": "Sweet Corn",
+      "category": "seasonal",
+      "price": 30,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=400&q=80",
+      "type": "Summer"
+    },
+    {
+      "id": 304,
+      "name": "Radishes",
+      "category": "seasonal",
+      "price": 40,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=400&q=80",
+      "type": "Spring"
+    },
+    {
+      "id": 305,
+      "name": "Asparagus",
+      "category": "seasonal",
+      "price": 180,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1515471209610-dae1c92d8777?auto=format&fit=crop&w=400&q=80",
+      "type": "Spring"
+    },
+    {
+      "id": 306,
+      "name": "Brussels Sprouts",
+      "category": "seasonal",
+      "price": 90,
+      "farmerId": "f2",
+      "image": "../photos/brucceels.jpg",
+      "type": "Winter"
+    },
+    {
+      "id": 307,
+      "name": "Mushrooms",
+      "category": "seasonal",
+      "price": 120,
+      "farmerId": "f2",
+      "image": "../photos/mushrooms.jpg",
+      "type": "Autumn"
+    },
+    {
+      "id": 308,
+      "name": "Green Peas",
+      "category": "seasonal",
+      "price": 80,
+      "farmerId": "f2",
+      "image": "../photos/greenpeace.jpg",
+      "type": "Spring"
+    },
+    {
+      "id": 309,
+      "name": "Cauliflower",
+      "category": "seasonal",
+      "price": 50,
+      "farmerId": "f2",
+      "image": "https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=400&q=80",
+      "type": "Winter"
+    },
+    {
+      "id": 310,
+      "name": "Eggplant",
+      "category": "seasonal",
+      "price": 60,
+      "farmerId": "f2",
+      "image": "../photos/eggphant.webp",
+      "type": "Summer"
+    },
+    {
+      "id": 311,
+      "name": "Zucchini",
+      "category": "seasonal",
+      "price": 45,
+      "farmerId": "f2",
+      "image": "../photos/zuchhini.webp",
+      "type": "Summer"
+    },
+    {
+      "id": 312,
+      "name": "Okra",
+      "category": "seasonal",
+      "price": 70,
+      "farmerId": "f2",
+      "image": "../photos/okra.jpg",
+      "type": "Summer"
+    },
+    {
+      "id": 313,
+      "name": "Beetroot",
+      "category": "seasonal",
+      "price": 50,
+      "farmerId": "f2",
+      "image": "../photos/beetroot.webp",
+      "type": "Winter"
+    },
+    {
+      "id": 314,
+      "name": "Cabbage",
+      "category": "seasonal",
+      "price": 35,
+      "farmerId": "f2",
+      "image": "../photos/cabbage.webp",
+      "type": "Winter"
+    },
+    {
+      "id": 315,
+      "name": "Figs",
+      "category": "seasonal",
+      "price": 200,
+      "farmerId": "f2",
+      "image": "../photos/figs.jpeg",
+      "type": "Autumn"
+    },
+    {
+      "id": 1771390707970,
+      "name": "345",
+      "price": 33,
+      "category": "seasonal",
+      "type": "Seasonal Vegetable",
+      "image": "https://placehold.co/400x300?text=345",
+      "farmerId": "1771354925049"
+    },
+    {
+      "id": 1771394653895,
+      "name": "Green apple",
+      "price": 45,
+      "category": "fruits",
+      "type": "Fresh Fruit",
+      "image": "https://placehold.co/400x300?text=Green%20apple",
+      "farmerId": "1771354925049"
+    },
+    {
+      "id": 1771397309769,
+      "name": "apples",
+      "price": 55,
+      "category": "fruits",
+      "type": "Fresh Fruit",
+      "image": "https://placehold.co/400x300?text=apples",
+      "farmerId": "1771354925049"
+    },
+    {
+      "id": 1782833714329,
+      "name": "Demo2",
+      "category": "seasonal",
+      "price": 66,
+      "farmerId": "f1",
+      "image": "https://placehold.co/400x300?text=Demo2",
+      "type": "Seasonal Vegetable"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1001,
+      "date": "2/18/2026",
+      "customerId": "c1",
+      "status": "Accepted",
+      "total": 160,
+      "items": [
+        {
+          "id": 101,
+          "name": "Organic Kale",
+          "price": 80,
+          "quantity": 2,
+          "farmerId": "f1",
+          "image": "../photos/kale.jpeg"
+        }
+      ],
+      "paymentMethod": "UPI"
+    },
+    {
+      "id": 1002,
+      "date": "2/18/2026",
+      "customerId": "c1",
+      "status": "Accepted",
+      "total": 60,
+      "items": [
+        {
+          "id": 103,
+          "name": "Fresh Spinach",
+          "price": 60,
+          "quantity": 1,
+          "farmerId": "f1",
+          "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80"
+        }
+      ],
+      "paymentMethod": "Card"
+    },
+    {
+      "id": 1782835051577,
+      "customerId": "1782835051355",
+      "date": "6/30/2026",
+      "total": 120,
+      "status": "Accepted",
+      "items": [
+        {
+          "price": 60,
+          "quantity": 2,
+          "name": "Premium Bananas",
+          "id": 201,
+          "farmerId": "f2"
+        }
+      ],
+      "paymentMethod": "Card"
+    }
+  ]
+}

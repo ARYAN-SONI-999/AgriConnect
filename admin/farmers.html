@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Farmers - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body>
+
+    <nav class="navbar admin-header">
+        <div class="container nav-flex">
+            <a href="admin-home.html" class="logo" style="color: var(--text-dark)">🛡️ AgriConnect Admin</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="admin-home.html">Dashboard</a>
+                <a href="farmers.html" style="color: var(--text-dark); font-weight:700">Farmers</a>
+                <a href="customers.html">Customers</a>
+                <a href="transactions.html">Transactions</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container fade-in" style="padding-top: 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+            <h1>Platform Farmers</h1>
+            <span class="badge" style="background:#eee; padding:5px 10px; border-radius:10px">Total: <span
+                    id="farmerCount">0</span></span>
+        </div>
+
+        <table class="user-table">
+            <caption>Registered Farmers Management List</caption>
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+
+</html>
