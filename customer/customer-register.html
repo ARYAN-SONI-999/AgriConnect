@@ -89,7 +89,7 @@
             try {
                 const result = await API.register({ name, username, email, mobile, password: hashedPassword, role: 'customer' });
                 const users = DB.getUsers() || [];
-                const savedUser = { ...(result.user || {}), password: hashedPassword };
+                const savedUser = { ...(result.user || {}) };
                 if (!users.some(u => u.id === savedUser.id || u.username === savedUser.username)) {
                     users.push(savedUser);
                     localStorage.setItem(DB.USERS, JSON.stringify(users));
