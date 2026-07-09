@@ -31,6 +31,8 @@ function updateCartCount() {
 }
 
 let allProductsList = [];
+let currentPage = 1;
+const itemsPerPage = 8;
 
 // Render Products
 function renderProducts(category = 'all') {
@@ -42,19 +44,23 @@ function renderProducts(category = 'all') {
         
         let filtered = category === 'all' ? allProductsList : allProductsList.filter(p => p.category === category);
         
-        // Search filter
+        // Search filter including category search
         if (searchInput && searchInput.value.trim() !== '') {
             const query = searchInput.value.toLowerCase().trim();
-            filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.type.toLowerCase().includes(query));
+            filtered = filtered.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.type.toLowerCase().includes(query) ||
+                p.category.toLowerCase().includes(query)
+            );
         }
         
         // Sorting
         if (sortSelect) {
             const sortVal = sortSelect.value;
             if (sortVal === 'price-low-high') {
-                filtered.sort((a, b) => a.price - b.price);
+                filtered.sort((a, b) => Number(a.price) - Number(b.price));
             } else if (sortVal === 'price-high-low') {
-                filtered.sort((a, b) => b.price - a.price);
+                filtered.sort((a, b) => Number(b.price) - Number(a.price));
             } else if (sortVal === 'name-a-z') {
                 filtered.sort((a, b) => a.name.localeCompare(b.name));
             }
@@ -62,24 +68,74 @@ function renderProducts(category = 'all') {
 
         if (filtered.length === 0) {
             productsContainer.innerHTML = '<div style="padding:20px; text-align:center; color:#999; width:100%;">No products found matching your search.</div>';
+            renderPagination(0);
             return;
         }
 
-        productsContainer.innerHTML = filtered.map(product => `
-            <div class="product-card fade-in" style="cursor: pointer;" onclick="openProductDetail(${product.id}, event)">
-                <div class="product-img">
-                    <img src="${product.image.startsWith('http') || product.image.startsWith('..') ? product.image : '../images/' + product.image}" onerror="this.src='https://placehold.co/400x300?text=${encodeURIComponent(product.name)}'" alt="${escapeHTML(product.name)}">
-                </div>
-                <div class="product-info">
-                    <div class="product-title">${escapeHTML(product.name)}</div>
-                    <div class="product-meta">By ${escapeHTML(getFarmerName(product.farmerId))} • ${escapeHTML(product.type)}</div>
-                    <div class="product-footer">
-                        <span class="price">RS ${product.price}/kg</span>
-                        <button class="btn-add" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+        // Pagination calculations
+        const totalItems = filtered.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        currentPage = Math.min(currentPage, totalPages);
+        
+        const startIdx = (currentPage - 1) * itemsPerPage;
+        const pageItems = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+        productsContainer.innerHTML = pageItems.map(product => {
+            const isWishlisted = DB.isInWishlist(product.id);
+            const isOutOfStock = product.quantity !== undefined && Number(product.quantity) <= 0;
+            return `
+                <div class="product-card fade-in" style="cursor: pointer;" onclick="openProductDetail(${product.id}, event)">
+                    ${isOutOfStock ? `<div class="out-of-stock-overlay">Out of Stock</div>` : ''}
+                    <div class="product-img">
+                        <img src="${product.image.startsWith('http') || product.image.startsWith('..') ? product.image : '../images/' + product.image}" 
+                             onerror="this.src='https://placehold.co/400x300?text=${encodeURIComponent(product.name)}'" 
+                             alt="${escapeHTML(product.name)}" loading="lazy">
+                        <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" 
+                            onclick="event.stopPropagation(); toggleWishlist(${product.id}, this)" 
+                            aria-label="${isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}">
+                            ${isWishlisted ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${escapeHTML(product.name)}</div>
+                        <div class="product-meta">By ${escapeHTML(getFarmerName(product.farmerId))} • ${escapeHTML(product.type)}</div>
+                        <div class="product-footer">
+                            <span class="price">₹${product.price}/kg</span>
+                            <button class="btn-add" ${isOutOfStock ? 'disabled' : ''} onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
+
+        renderPagination(totalPages);
+    };
+
+    const renderPagination = (totalPages) => {
+        let pagContainer = document.getElementById('paginationContainer');
+        if (!pagContainer) {
+            pagContainer = document.createElement('div');
+            pagContainer.id = 'paginationContainer';
+            pagContainer.className = 'pagination';
+            productsContainer.parentElement.appendChild(pagContainer);
+        }
+        if (totalPages <= 1) {
+            pagContainer.innerHTML = '';
+            return;
+        }
+
+        let buttonsHTML = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">Prev</button>`;
+        for (let i = 1; i <= totalPages; i++) {
+            buttonsHTML += `<button class="page-btn ${currentPage === i ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+        }
+        buttonsHTML += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next</button>`;
+        pagContainer.innerHTML = buttonsHTML;
+    };
+
+    window.changePage = (page) => {
+        currentPage = page;
+        applyFilterAndSort();
+        window.scrollTo(0, 0);
     };
 
     const initListeners = (products) => {
@@ -90,12 +146,24 @@ function renderProducts(category = 'all') {
         const sortSelect = document.getElementById('sortSelect');
         
         if (searchInput) {
-            searchInput.removeEventListener('input', applyFilterAndSort);
-            searchInput.addEventListener('input', applyFilterAndSort);
+            searchInput.removeEventListener('input', () => { currentPage = 1; applyFilterAndSort(); });
+            searchInput.addEventListener('input', () => { 
+                currentPage = 1; 
+                applyFilterAndSort(); 
+                renderAutocomplete(searchInput.value, allProductsList);
+            });
+            // Close autocomplete on focusout with delay
+            searchInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    const dropdown = document.getElementById('autocompleteDropdown');
+                    if (dropdown) dropdown.style.display = 'none';
+                }, 200);
+            });
         }
         if (sortSelect) {
             sortSelect.removeEventListener('change', applyFilterAndSort);
             sortSelect.addEventListener('change', applyFilterAndSort);
+            sortSelect.setAttribute('aria-label', 'Sort products dropdown options');
         }
     };
 
@@ -107,7 +175,7 @@ function renderProducts(category = 'all') {
         </div>
     `;
 
-    // Fetch from Backend (Products & Users to resolve farmer names)
+    // Fetch from Backend
     Promise.all([
         API.getProducts(),
         API.getUsers()
@@ -124,15 +192,84 @@ function renderProducts(category = 'all') {
         });
 }
 
+// Search Autocomplete Suggestion Logic
+function renderAutocomplete(query, products) {
+    const wrapper = document.getElementById('searchInput').parentElement;
+    let dropdown = document.getElementById('autocompleteDropdown');
+    if (!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.id = 'autocompleteDropdown';
+        dropdown.className = 'autocomplete-dropdown';
+        wrapper.style.position = 'relative';
+        wrapper.appendChild(dropdown);
+    }
+    if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
+    
+    const matches = products.filter(p => 
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        p.category.toLowerCase().includes(query.toLowerCase()) ||
+        p.type.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 6);
+
+    if (matches.length === 0) { dropdown.style.display = 'none'; return; }
+    
+    dropdown.innerHTML = matches.map(p => 
+        `<div class="autocomplete-item" onclick="selectAutocomplete('${escapeHTML(p.name)}')">
+            <span class="autocomplete-item-name">${escapeHTML(p.name)}</span>
+            <span class="autocomplete-item-meta">₹${p.price}/kg • ${escapeHTML(p.type)}</span>
+        </div>`
+    ).join('');
+    dropdown.style.display = 'block';
+}
+
+window.selectAutocomplete = (name) => {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = name;
+        currentPage = 1;
+        const event = new Event('input');
+        searchInput.dispatchEvent(event);
+    }
+    const dropdown = document.getElementById('autocompleteDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+};
+
+// Wishlist Heart Toggle
+window.toggleWishlist = (productId, btn) => {
+    if (DB.isInWishlist(productId)) {
+        DB.removeFromWishlist(productId);
+        btn.innerHTML = '🤍';
+        btn.classList.remove('active');
+        btn.setAttribute('aria-label', 'Add to wishlist');
+        showToast('Removed from wishlist', 'info');
+    } else {
+        DB.addToWishlist(productId);
+        btn.innerHTML = '❤️';
+        btn.classList.add('active');
+        btn.setAttribute('aria-label', 'Remove from wishlist');
+        showToast('Added to wishlist! ❤️', 'success');
+    }
+};
+
 // Product detailed view modal
-function openProductDetail(productId, event) {
+async function openProductDetail(productId, event) {
     if (event) event.stopPropagation();
     const products = DB.getProducts() || [];
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => Number(p.id) === Number(productId));
     if (!product) return;
 
     const users = DB.getUsers() || [];
     const farmer = users.find(u => u.id === product.farmerId) || { name: 'Verified Farmer', location: 'Local Green Farm' };
+
+    // Fetch reviews from server if possible, fallback to local storage
+    let productReviews = [];
+    try {
+        productReviews = await API.getReviews(productId);
+    } catch(e) {
+        if (window.Reviews) productReviews = Reviews.getLocalReviews(productId);
+    }
+
+    const isOutOfStock = product.quantity !== undefined && Number(product.quantity) <= 0;
 
     // Create Modal Element
     const modal = document.createElement('div');
@@ -150,39 +287,103 @@ function openProductDetail(productId, event) {
     modal.style.backdropFilter = 'blur(5px)';
 
     modal.innerHTML = `
-        <div class="card fade-in" role="dialog" aria-modal="true" aria-labelledby="modalProductTitle" style="width: 500px; max-width: 90%; background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg); position: relative; padding: 0;">
-            <button onclick="closeProductDetail()" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
-            <img src="${product.image.startsWith('http') || product.image.startsWith('..') ? product.image : '../images/' + product.image}" onerror="this.src='https://placehold.co/400x300?text=${encodeURIComponent(product.name)}'" style="width: 100%; height: 260px; object-fit: cover;">
+        <div class="card fade-in" role="dialog" aria-modal="true" aria-labelledby="modalProductTitle" style="width: 500px; max-width: 90%; max-height:90vh; overflow-y:auto; background: white; border-radius: 16px; position: relative; padding: 0; box-shadow: var(--shadow-lg);">
+            <button onclick="closeProductDetail()" aria-label="Close product details" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;">&times;</button>
+            <img src="${product.image.startsWith('http') || product.image.startsWith('..') ? product.image : '../images/' + product.image}" onerror="this.src='https://placehold.co/400x300?text=${encodeURIComponent(product.name)}'" style="width: 100%; height: 220px; object-fit: cover;">
             <div style="padding: 25px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
                     <h2 id="modalProductTitle" style="margin: 0; color: var(--text-dark);">${escapeHTML(product.name)}</h2>
-                    <span style="background: #eafaf1; color: var(--primary-green); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">${escapeHTML(product.type)}</span>
+                    <span class="badge badge-green">${escapeHTML(product.type)}</span>
                 </div>
+                
                 <div style="margin-top: 15px; font-size: 0.95rem; color: #555; line-height: 1.6;">
                     <p style="margin: 5px 0;"><strong>🌾 Category:</strong> ${escapeHTML(product.category.toUpperCase())}</p>
                     <p style="margin: 5px 0;"><strong>👨‍🌾 Harvested By:</strong> ${escapeHTML(farmer.name)}</p>
                     <p style="margin: 5px 0;"><strong>📍 Farm Origin:</strong> ${escapeHTML(farmer.location || 'Green Valley farm')}</p>
+                    <p style="margin: 5px 0;"><strong>📦 Stock Level:</strong> ${isOutOfStock ? '<span style="color:#dc2626;font-weight:700;">Out of Stock</span>' : (product.quantity || 100) + ' kg available'}</p>
+                    ${product.description ? `<p style="margin: 10px 0 5px;"><strong>📄 Info:</strong> ${escapeHTML(product.description)}</p>` : ''}
                 </div>
+
+                <!-- Quantity input selector -->
+                ${!isOutOfStock ? `
+                <div style="display:flex; align-items:center; gap:12px; margin-top:20px; background:#f8fafc; padding:10px 15px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <label for="modalQty" style="font-weight:600; font-size:0.9rem;">Qty (kg):</label>
+                    <input type="number" id="modalQty" name="qty" min="1" max="${product.quantity || 100}" step="1" value="1" style="width:85px; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.95rem; text-align:center;">
+                </div>
+                ` : ''}
+
                 <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px;">
-                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary-green);">RS ${product.price}/kg</span>
-                    <button class="btn btn-primary" onclick="addToCartFromModal(${product.id})" style="border: none; background: var(--primary-green); padding: 10px 25px; border-radius: 8px;">Add to Cart</button>
+                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary-green);">₹${product.price}/kg</span>
+                    <button class="btn btn-primary" ${isOutOfStock ? 'disabled' : ''} onclick="addToCartFromModal(${product.id})" style="border: none; background: var(--primary-green); padding: 10px 25px; border-radius: 8px;">Add to Cart</button>
                 </div>
+
+                <!-- Reviews section wrapper -->
+                <div id="reviewsContainer"></div>
             </div>
         </div>
     `;
 
     document.body.appendChild(modal);
+
+    // Render reviews using Reviews module
+    const reviewsDiv = document.getElementById('reviewsContainer');
+    if (reviewsDiv && window.Reviews) {
+        reviewsDiv.innerHTML = Reviews.renderReviewsSection(productId, productReviews, DB.getCurrentUser());
+    }
+
+    // Keyboard focus trap inside modal
+    const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex="0"]');
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const tabHandler = (e) => {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstElement) {
+                lastElement.focus();
+                e.preventDefault();
+            }
+        } else { // Tab
+            if (document.activeElement === lastElement) {
+                firstElement.focus();
+                e.preventDefault();
+            }
+        }
+    };
+    modal.addEventListener('keydown', tabHandler);
+
+    // Escape listener
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            cleanup();
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    function cleanup() {
+        modal.removeEventListener('keydown', tabHandler);
+        document.removeEventListener('keydown', escHandler);
+        closeProductDetail();
+    }
+
+    // Bind close logic
+    modal.querySelector('[aria-label="Close product details"]').onclick = cleanup;
+    firstElement.focus();
 }
 
-function closeProductDetail() {
+window.openProductDetail = openProductDetail;
+
+window.closeProductDetail = function() {
     const modal = document.getElementById('productDetailModal');
     if (modal) modal.remove();
-}
+};
 
-function addToCartFromModal(productId) {
-    addToCart(productId);
-    closeProductDetail();
-}
+window.addToCartFromModal = (productId) => {
+    const qtyInput = document.getElementById('modalQty');
+    const quantity = qtyInput ? Number(qtyInput.value) : 1;
+    addToCart(productId, quantity);
+    window.closeProductDetail();
+};
 
 // Helper to get farmer name
 function getFarmerName(id) {
@@ -191,16 +392,17 @@ function getFarmerName(id) {
     return farmer ? farmer.name : 'Unknown Farmer';
 }
 
-// Add to Cart
-function addToCart(productId) {
+// Add to Cart with Quantity Support
+function addToCart(productId, quantity = 1) {
     const products = DB.getProducts() || [];
     const product = products.find(p => p.id.toString() === productId.toString());
     if (product) {
-        DB.addToCart(product);
+        DB.addToCart(product, quantity);
         updateCartCount();
-        showToast(`${product.name} added to your cart!`, 'success');
+        showToast(`${product.name} (${quantity}kg) added to your cart!`, 'success');
     }
 }
+window.addToCart = addToCart;
 
 // Initial Load
 document.addEventListener('DOMContentLoaded', () => {

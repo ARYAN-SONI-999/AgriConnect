@@ -11,42 +11,44 @@
 
 <body>
 
-    <div class="auth-wrapper theme-farmer">
-        <div class="auth-container">
-            <div class="auth-image-side">
-                <div class="auth-image-text">
-                    <h3>Grow Your<br>Business</h3>
-                    <p>Reach thousands of customers directly.</p>
-                </div>
-            </div>
-
-            <div class="auth-form-side">
-                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
-                <div class="auth-header">
-                    <h2>Farmer Portal</h2>
-                    <p>Login to manage your crops</p>
-                </div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" required placeholder="farmer123">
+    <main class="page-content">
+        <div class="auth-wrapper theme-farmer">
+            <div class="auth-container">
+                <div class="auth-image-side">
+                    <div class="auth-image-text">
+                        <h3>Grow Your<br>Business</h3>
+                        <p>Reach thousands of customers directly.</p>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit">Login</button>
-                </form>
-
-                <div style="text-align: center; margin-top: 20px;">
-                    <p style="color: #666">New Farmer? <a href="farmer-register.html"
-                            style="color: #d35400; font-weight: 600">Register Here</a></p>
                 </div>
-                <a href="../index.html" class="back-link">← Back to Home</a>
+
+                <div class="auth-form-side">
+                    <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                    <div class="auth-header">
+                        <h2>Farmer Portal</h2>
+                        <p>Login to manage your crops</p>
+                    </div>
+
+                    <form id="loginForm" novalidate>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" autocomplete="username" required placeholder="farmer123">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                    </form>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="color: #666">New Farmer? <a href="farmer-register.html"
+                                style="color: #d35400; font-weight: 600">Register Here</a></p>
+                    </div>
+                    <a href="../index.html" class="back-link">← Back to Home</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
     <script src="../js/data.js"></script>

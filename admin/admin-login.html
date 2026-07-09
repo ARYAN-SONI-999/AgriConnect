@@ -11,38 +11,40 @@
 
 <body>
 
-    <div class="auth-wrapper theme-admin">
-        <div class="auth-container">
-            <div class="auth-image-side">
-                <div class="auth-image-text">
-                    <h3>Admin<br>Console</h3>
-                    <p>Secure access for system administrators.</p>
-                </div>
-            </div>
-
-            <div class="auth-form-side">
-                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
-                <div class="auth-header">
-                    <h2>Restricted Access</h2>
-                    <p>Login to Admin Dashboard</p>
+    <main class="page-content">
+        <div class="auth-wrapper theme-admin">
+            <div class="auth-container">
+                <div class="auth-image-side">
+                    <div class="auth-image-text">
+                        <h3>Admin<br>Console</h3>
+                        <p>Secure access for system administrators.</p>
+                    </div>
                 </div>
 
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" required placeholder="admin123">
+                <div class="auth-form-side">
+                    <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                    <div class="auth-header">
+                        <h2>Restricted Access</h2>
+                        <p>Login to Admin Dashboard</p>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit">Login Access</button>
-                </form>
 
-                <a href="../index.html" class="back-link" style="margin-top: 20px;">← Back to Home</a>
+                    <form id="loginForm" novalidate>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" autocomplete="username" required placeholder="admin123">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login Access</button>
+                    </form>
+
+                    <a href="../index.html" class="back-link" style="margin-top: 20px;">← Back to Home</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
     <script src="../js/data.js"></script>

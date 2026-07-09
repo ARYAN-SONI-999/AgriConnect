@@ -11,64 +11,92 @@
 
 <body>
 
-    <div class="auth-wrapper theme-farmer">
-        <div class="auth-container">
-            <div class="auth-image-side">
-                <div class="auth-image-text">
-                    <h3>Start Selling<br>Today</h3>
-                    <p>Join our network of sustainable farmers.</p>
-                </div>
-            </div>
-
-            <div class="auth-form-side">
-                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
-                <div class="auth-header">
-                    <h2>Join as Farmer</h2>
-                    <p>Create your Farmer Account</p>
+    <main class="page-content">
+        <div class="auth-wrapper theme-farmer">
+            <div class="auth-container">
+                <div class="auth-image-side">
+                    <div class="auth-image-text">
+                        <h3>Start Selling<br>Today</h3>
+                        <p>Join our network of sustainable farmers.</p>
+                    </div>
                 </div>
 
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" required>
+                <div class="auth-form-side">
+                    <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                    <div class="auth-header">
+                        <h2>Join as Farmer</h2>
+                        <p>Create your Farmer Account</p>
                     </div>
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" required placeholder="Create a username">
-                    </div>
-                    <div class="form-group">
-                        <label for="location">Farm Location</label>
-                        <input type="text" id="location" required placeholder="e.g. Green Valley, CA">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="mobile">Mobile Number</label>
-                        <input type="text" id="mobile" placeholder="10-digit number" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <button type="submit">Sign Up</button>
-                </form>
 
-                <div style="text-align: center; margin-top: 20px;">
-                    <p style="color: #666">Already registered? <a href="farmer-login.html"
-                            style="color: #d35400; font-weight: 600">Login</a></p>
+                    <form id="registerForm" novalidate>
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" autocomplete="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" autocomplete="username" required placeholder="Create a username">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Farm Location</label>
+                            <input type="text" id="location" name="location" autocomplete="street-address" required placeholder="e.g. Green Valley, CA">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" autocomplete="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile">Mobile Number</label>
+                            <input type="tel" id="mobile" name="mobile" autocomplete="tel" placeholder="10-digit number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" autocomplete="new-password" required>
+                            <div id="passwordStrength" class="form-error" style="display:none"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+                    </form>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="color: #666">Already registered? <a href="farmer-login.html"
+                                style="color: #d35400; font-weight: 600">Login</a></p>
+                    </div>
+                    <a href="../index.html" class="back-link">← Back to Home</a>
                 </div>
-                <a href="../index.html" class="back-link">← Back to Home</a>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
     <script src="../js/data.js"></script>
     <script src="../js/validation.js"></script>
     <script src="../js/auth.js"></script>
     <script>
+        const passwordInput = document.getElementById('password');
+        const strengthDiv = document.getElementById('passwordStrength');
+
+        passwordInput.addEventListener('input', () => {
+            const pwd = passwordInput.value;
+            if (!pwd) {
+                strengthDiv.style.display = 'none';
+                return;
+            }
+            const res = Validation.validatePassword(pwd);
+            if (!res.valid) {
+                strengthDiv.style.display = 'block';
+                strengthDiv.textContent = '⚠️ ' + res.message;
+                strengthDiv.style.color = '#dc2626';
+            } else {
+                strengthDiv.style.display = 'block';
+                strengthDiv.textContent = '✅ Strong Password';
+                strengthDiv.style.color = '#16a34a';
+            }
+        });
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('name').value;
@@ -77,6 +105,7 @@
             const email = document.getElementById('email').value;
             const mobile = document.getElementById('mobile').value;
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
 
             if (!Validation.validateEmail(email)) {
                 showToast('Invalid Email Address!', 'error');
@@ -84,6 +113,17 @@
             }
             if (!Validation.validateMobile(mobile)) {
                 showToast('Invalid Mobile Number!', 'error');
+                return;
+            }
+            
+            const pwdRes = Validation.validatePassword(password);
+            if (!pwdRes.valid) {
+                showToast(pwdRes.message, 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match!', 'error');
                 return;
             }
 

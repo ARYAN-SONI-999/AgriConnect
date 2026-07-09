@@ -15,13 +15,14 @@
     <nav class="navbar customer-header">
         <div class="container nav-flex">
             <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
-            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+            <button class="mobile-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
             </button>
             <div class="nav-links">
                 <a href="customer-home.html" style="color: var(--primary-green)">Home</a>
+                <a href="wishlist.html">Wishlist</a>
                 <a href="cart.html" class="cart-icon">
                     🛒 <span id="cartCount" class="cart-count">0</span>
                 </a>
@@ -31,45 +32,47 @@
         </div>
     </nav>
 
-    <!-- Welcome Banner -->
-    <div class="container" style="padding: 40px 20px 20px;">
-        <h1 class="fade-in">Fresh from the Farm</h1>
-        <p class="fade-in" style="color: var(--text-muted)">Choose a category to start shopping.</p>
-    </div>
+    <main class="page-content">
+        <!-- Welcome Banner -->
+        <div class="container" style="padding: 40px 20px 20px;">
+            <h1 class="fade-in">Fresh from the Farm</h1>
+            <p class="fade-in" style="color: var(--text-muted)">Choose a category to start shopping.</p>
+        </div>
 
-    <!-- Categories -->
-    <div class="container category-grid fade-in" style="animation-delay: 0.2s">
+        <!-- Categories -->
+        <div class="container category-grid fade-in" style="animation-delay: 0.2s">
 
-        <a href="organic.html" class="cat-card">
-            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=60"
-                class="cat-img" alt="Organic">
-            <div class="cat-overlay">
-                <h3>Organic Products</h3>
-            </div>
-        </a>
+            <a href="organic.html" class="cat-card">
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=60"
+                    class="cat-img" alt="Variety of organic vegetables in a display basket">
+                <div class="cat-overlay">
+                    <h3>Organic Products</h3>
+                </div>
+            </a>
 
-        <a href="seasonal.html" class="cat-card">
-            <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=500&q=60"
-                class="cat-img" alt="Seasonal">
-            <div class="cat-overlay">
-                <h3>Seasonal Veggies</h3>
-            </div>
-        </a>
+            <a href="seasonal.html" class="cat-card">
+                <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=500&q=60"
+                    class="cat-img" alt="Freshly harvested seasonal crops and greens">
+                <div class="cat-overlay">
+                    <h3>Seasonal Veggies</h3>
+                </div>
+            </a>
 
-        <a href="fruits.html" class="cat-card">
-            <img src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=500&q=60"
-                class="cat-img" alt="Fruits">
-            <div class="cat-overlay">
-                <h3>Fresh Fruits</h3>
-            </div>
-        </a>
+            <a href="fruits.html" class="cat-card">
+                <img src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=500&q=60"
+                    class="cat-img" alt="Colorful assortment of ripe citrus and tropical fruits">
+                <div class="cat-overlay">
+                    <h3>Fresh Fruits</h3>
+                </div>
+            </a>
 
-    </div>
+        </div>
+    </main>
 
     <script src="../js/translate.js"></script>
-    <script src="../js/data.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/customer.js"></script>
+    <script src="../js/data.js?v=3"></script>
+    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/customer.js?v=3"></script>
 </body>
 
 </html>

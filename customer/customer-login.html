@@ -11,44 +11,46 @@
 
 <body>
 
-    <div class="auth-wrapper theme-customer">
-        <div class="auth-container">
-            <!-- Left Side -->
-            <div class="auth-image-side">
-                <div class="auth-image-text">
-                    <h3>Fresh Organic<br>Groceries</h3>
-                    <p>Delivered directly from farmers to your doorstep.</p>
-                </div>
-            </div>
-
-            <!-- Right Side -->
-            <div class="auth-form-side">
-                <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
-                <div class="auth-header">
-                    <h2>Welcome Back</h2>
-                    <p>Login to your Customer Account</p>
-                </div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" required placeholder="customer123">
+    <main class="page-content">
+        <div class="auth-wrapper theme-customer">
+            <div class="auth-container">
+                <!-- Left Side -->
+                <div class="auth-image-side">
+                    <div class="auth-image-text">
+                        <h3>Fresh Organic<br>Groceries</h3>
+                        <p>Delivered directly from farmers to your doorstep.</p>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit">Login</button>
-                </form>
-
-                <div style="text-align: center; margin-top: 20px;">
-                    <p style="color: #666">New here? <a href="customer-register.html"
-                            style="color: #11998e; font-weight: 600">Create Account</a></p>
                 </div>
-                <a href="../index.html" class="back-link">← Back to Home</a>
+
+                <!-- Right Side -->
+                <div class="auth-form-side">
+                    <a href="../index.html" class="logo-text">🌱 AgriConnect</a>
+                    <div class="auth-header">
+                        <h2>Welcome Back</h2>
+                        <p>Login to your Customer Account</p>
+                    </div>
+
+                    <form id="loginForm" novalidate>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" autocomplete="username" required placeholder="customer123">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" autocomplete="current-password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                    </form>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p style="color: #666">New here? <a href="customer-register.html"
+                                style="color: #11998e; font-weight: 600">Create Account</a></p>
+                    </div>
+                    <a href="../index.html" class="back-link">← Back to Home</a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
     <script src="../js/data.js"></script>

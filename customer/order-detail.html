@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Tracking - AgriConnect</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/customer.css">
+    <style>
+        .timeline { padding: 20px 0; }
+        .timeline-step { display: flex; gap: 16px; margin-bottom: 20px; }
+        .step-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; border: 3px solid #e2e8f0; }
+        .step-icon.done { background: #d1fae5; border-color: #16a34a; }
+        .step-icon.active { background: #dbeafe; border-color: #2563eb; animation: pulse 2s infinite; }
+        .step-icon.pending { background: #f8fafc; border-color: #e2e8f0; opacity: 0.5; }
+        .step-content h4 { margin: 0 0 4px; font-size: 0.95rem; }
+        .step-content p { margin: 0; font-size: 0.8rem; color: #64748b; }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,0.4)} 50%{box-shadow:0 0 0 8px rgba(37,99,235,0)} }
+    </style>
+</head>
+<body>
+    <nav class="navbar customer-header">
+        <div class="container nav-flex">
+            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            <div class="nav-links">
+                <a href="customer-home.html">Home</a>
+                <a href="cart.html" class="cart-icon">🛒 <span id="cartCount" class="cart-count">0</span></a>
+                <a href="profile.html">Profile</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+    <main class="page-content">
+        <div class="container" style="padding: 40px 20px; max-width: 700px; margin: 0 auto;">
+            <a href="profile.html" style="color:var(--primary-green);font-size:0.9rem;display:flex;align-items:center;gap:4px;margin-bottom:20px;font-weight:700;">← Back to Orders</a>
+            <div id="orderDetailContent"></div>
+        </div>
+    </main>
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js?v=3"></script>
+    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/customer.js?v=3"></script>
+    <script>
+        checkAuth('customer');
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('id');
+            const orders = DB.getOrders() || [];
+            const order = orders.find(o => String(o.id) === String(orderId));
+            const container = document.getElementById('orderDetailContent');
+            
+            if (!order) {
+                container.innerHTML = `<div style="text-align:center;padding:60px;"><p style="color:var(--text-muted);">Order not found. <a href="profile.html">Go back</a></p></div>`;
+                return;
+            }
+
+            const statusSteps = [
+                { key: 'Pending', label: 'Order Placed', icon: '📦', desc: 'Your order has been received' },
+                { key: 'Accepted', label: 'Accepted by Farmer', icon: '✅', desc: 'Farmer is preparing your order' },
+                { key: 'Delivered', label: 'Delivered', icon: '🏠', desc: 'Delivered to your address' },
+            ];
+            const statusOrder = ['Pending','Accepted','Delivered'];
+            const currentIdx = statusOrder.indexOf(order.status);
+
+            const timelineHTML = statusSteps.map((step, idx) => {
+                const isDone = idx < currentIdx || (currentIdx >= 0 && idx <= currentIdx && order.status !== 'Pending');
+                const isActive = idx === currentIdx;
+                const cls = order.status === 'Rejected' ? 'pending' : (isDone ? 'done' : (isActive ? 'active' : 'pending'));
+                return `
+                    <div class="timeline-step">
+                        <div class="step-icon ${cls}">${step.icon}</div>
+                        <div class="step-content">
+                            <h4>${step.label}</h4>
+                            <p>${step.desc}</p>
+                        </div>
+                    </div>`;
+            }).join('<div style="width:3px;height:20px;background:#e2e8f0;margin:0 19px -10px;"></div>');
+
+            const itemsHTML = (order.items || []).map(item => 
+                `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:0.9rem;">
+                    <span>${escapeHTML(item.name)} × ${item.quantity}kg</span>
+                    <span style="font-weight:600;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                </div>`
+            ).join('');
+
+            container.innerHTML = `
+                <div class="card" style="margin-bottom:20px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <div><h1 style="font-size:1.3rem;margin-bottom:4px;">Order #${order.id}</h1><p style="color:var(--text-muted);font-size:0.85rem;margin:0;">Placed on ${new Date(order.date).toLocaleDateString('en-IN')}</p></div>
+                        <span class="badge ${order.status === 'Accepted' || order.status === 'Delivered' ? 'badge-green' : order.status === 'Rejected' ? 'badge-red' : 'badge-yellow'}">${order.status}</span>
+                    </div>
+                    <div class="timeline">${timelineHTML}</div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:15px;font-size:1rem;">Items Ordered</h3>
+                    ${itemsHTML}
+                    <div style="display:flex;justify-content:space-between;margin-top:12px;font-weight:700;">
+                        <span>Total</span><span>₹${(order.total || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                    ${order.deliveryAddress ? `<div style="margin-top:15px;padding-top:15px;border-top:1px solid #e2e8f0;"><p style="font-size:0.85rem;color:var(--text-muted);">📍 Delivery to: ${escapeHTML(order.deliveryAddress)}</p></div>` : ''}
+                </div>`;
+        });
+    </script>
+</body>
+</html>

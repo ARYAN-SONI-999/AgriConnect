@@ -54,6 +54,28 @@
       "role": "customer",
       "location": null,
       "mobile": "8758395372"
+    },
+    {
+      "id": "1783610335745",
+      "name": "zxc",
+      "username": "zxc",
+      "email": "zxc@gmail.com",
+      "password": "WnhjQDIwMDA=",
+      "role": "farmer",
+      "location": "Ever Green",
+      "mobile": "9856564898",
+      "status": "active"
+    },
+    {
+      "id": "1783610567404",
+      "name": "xcv",
+      "username": "xcv",
+      "email": "xcv@gmail.com",
+      "password": "WGN2QDIwMDA=",
+      "role": "customer",
+      "location": null,
+      "mobile": "9776789657",
+      "status": "active"
     }
   ],
   "products": [
@@ -379,7 +401,8 @@
       "price": 120,
       "farmerId": "f2",
       "image": "../photos/mushrooms.jpg",
-      "type": "Autumn"
+      "type": "Autumn",
+      "quantity": 97
     },
     {
       "id": 308,
@@ -454,33 +477,6 @@
       "type": "Autumn"
     },
     {
-      "id": 1771390707970,
-      "name": "345",
-      "price": 33,
-      "category": "seasonal",
-      "type": "Seasonal Vegetable",
-      "image": "https://placehold.co/400x300?text=345",
-      "farmerId": "1771354925049"
-    },
-    {
-      "id": 1771394653895,
-      "name": "Green apple",
-      "price": 45,
-      "category": "fruits",
-      "type": "Fresh Fruit",
-      "image": "https://placehold.co/400x300?text=Green%20apple",
-      "farmerId": "1771354925049"
-    },
-    {
-      "id": 1771397309769,
-      "name": "apples",
-      "price": 55,
-      "category": "fruits",
-      "type": "Fresh Fruit",
-      "image": "https://placehold.co/400x300?text=apples",
-      "farmerId": "1771354925049"
-    },
-    {
       "id": 1782833714329,
       "name": "Demo2",
       "category": "seasonal",
@@ -493,7 +489,7 @@
   "orders": [
     {
       "id": 1001,
-      "date": "2/18/2026",
+      "date": "2026-02-18T00:00:00.000Z",
       "customerId": "c1",
       "status": "Accepted",
       "total": 160,
@@ -507,11 +503,12 @@
           "image": "../photos/kale.jpeg"
         }
       ],
-      "paymentMethod": "UPI"
+      "paymentMethod": "UPI",
+      "deliveryAddress": "123 Farm Road, Green Valley, 380001"
     },
     {
       "id": 1002,
-      "date": "2/18/2026",
+      "date": "2026-02-18T00:00:00.000Z",
       "customerId": "c1",
       "status": "Accepted",
       "total": 60,
@@ -525,24 +522,31 @@
           "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80"
         }
       ],
-      "paymentMethod": "Card"
+      "paymentMethod": "Card",
+      "deliveryAddress": "123 Farm Road, Green Valley, 380001"
     },
     {
-      "id": 1782835051577,
-      "customerId": "1782835051355",
-      "date": "6/30/2026",
-      "total": 120,
-      "status": "Accepted",
+      "id": 1783612147019,
+      "customerId": "1783610567404",
+      "date": "2026-07-09T15:49:06.975Z",
+      "total": 360,
+      "status": "Pending",
       "items": [
         {
-          "price": 60,
-          "quantity": 2,
-          "name": "Premium Bananas",
-          "id": 201,
-          "farmerId": "f2"
+          "id": 307,
+          "name": "Mushrooms",
+          "category": "seasonal",
+          "price": 120,
+          "farmerId": "f2",
+          "image": "../photos/mushrooms.jpg",
+          "type": "Autumn",
+          "quantity": 3
         }
       ],
-      "paymentMethod": "Card"
+      "paymentMethod": "Card",
+      "deliveryAddress": "Ram society, ramnagar - 768300"
     }
-  ]
+  ],
+  "reviews": [],
+  "wishlist": []
 }

@@ -6,17 +6,29 @@ function checkAuth(requiredRole) {
     const user = DB.getCurrentUser();
 
     if (!user) {
+        // Prevent content flash
+        document.body.style.visibility = 'hidden';
+        
         // Redirect to specific login page based on role if trying to access protected area
-        if (requiredRole === 'customer') window.location.href = 'customer-login.html';
-        if (requiredRole === 'farmer') window.location.href = 'farmer-login.html';
-        if (requiredRole === 'admin') window.location.href = 'admin-login.html';
+        const path = window.location.pathname;
+        const depth = path.includes('/customer/') || path.includes('/farmer/') || path.includes('/admin/') ? '' : 'customer/';
+        
+        if (requiredRole === 'customer') window.location.href = depth + 'customer-login.html';
+        else if (requiredRole === 'farmer') window.location.href = depth + 'farmer-login.html';
+        else if (requiredRole === 'admin') window.location.href = depth + 'admin-login.html';
         return;
     }
 
     if (requiredRole && user.role !== requiredRole) {
         showToast('Unauthorized access', 'error');
-        window.location.href = '../index.html';
+        const path = window.location.pathname;
+        const depth = path.includes('/customer/') || path.includes('/farmer/') || path.includes('/admin/') ? '../' : '';
+        window.location.href = depth + 'index.html';
+        return;
     }
+
+    // Ensure page is visible if authorized
+    document.body.style.visibility = 'visible';
 
     // Update UI headers if logged in
     updateAuthUI(user);
@@ -45,13 +57,6 @@ async function triggerOTPVerification(username, password, role, onSuccess) {
         const res = await API.login(username, password, role);
         if (res && res.success) {
             user = res.user;
-            // Update local cache password if needed
-            const users = DB.getUsers() || [];
-            const cachedUser = users.find(u => u.username === username && u.role === role);
-            if (cachedUser) {
-                cachedUser.password = password;
-                localStorage.setItem(DB.USERS, JSON.stringify(users));
-            }
         }
     } catch (e) {
         console.warn('API verification failed, trying local fallback:', e);
@@ -65,6 +70,11 @@ async function triggerOTPVerification(username, password, role, onSuccess) {
 
     if (!user) {
         showToast('Invalid credentials!', 'error');
+        return;
+    }
+
+    if (user.status === 'banned') {
+        showToast('Your account has been suspended by admin.', 'error');
         return;
     }
 
@@ -83,6 +93,8 @@ async function triggerOTPVerification(username, password, role, onSuccess) {
 
     modal = document.createElement('div');
     modal.id = modalId;
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
     modal.style.cssText = `
         position: fixed;
         top: 0;
@@ -104,7 +116,7 @@ async function triggerOTPVerification(username, password, role, onSuccess) {
             <p style="font-size: 0.88rem; color: #7f8c8d; margin-bottom: 20px; line-height: 1.5;">We have sent a 6-digit OTP to your registered mobile number via SMS and WhatsApp.<br><strong style="color: #11998e; font-size: 0.95rem;">Test OTP Code: ${otpCode}</strong></p>
             
             <div style="margin-bottom: 20px;">
-                <input type="text" id="otpInputField" placeholder="••••••" maxlength="6" style="width: 150px; padding: 12px; font-size: 1.5rem; text-align: center; border: 2px solid #ddd; border-radius: 8px; letter-spacing: 5px; outline: none; transition: border 0.3s;" />
+                <input type="text" id="otpInputField" placeholder="••••••" maxlength="6" aria-label="Enter verification code" style="width: 150px; padding: 12px; font-size: 1.5rem; text-align: center; border: 2px solid #ddd; border-radius: 8px; letter-spacing: 5px; outline: none; transition: border 0.3s;" />
             </div>
 
             <button id="verifyOtpBtn" class="btn btn-primary" style="width: 100%; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; background: linear-gradient(135deg, #11998e, #38ef7d); color: white;">Verify & Login</button>
@@ -123,11 +135,24 @@ async function triggerOTPVerification(username, password, role, onSuccess) {
         if (input) input.focus();
     }, 100);
 
+    // Escape key handler to remove modal
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            cleanup();
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    function cleanup() {
+        document.removeEventListener('keydown', escHandler);
+        modal.remove();
+    }
+
     // Event Listeners
     document.getElementById('verifyOtpBtn').addEventListener('click', () => {
         const inputCode = document.getElementById('otpInputField').value.trim();
         if (inputCode === otpCode) {
-            modal.remove();
+            cleanup();
             
             // Save to session/local storage
             localStorage.setItem(DB.CURRENT_USER, JSON.stringify(user));
@@ -145,7 +170,7 @@ async function triggerOTPVerification(username, password, role, onSuccess) {
 
     document.getElementById('resendOtpBtn').addEventListener('click', (e) => {
         e.preventDefault();
+        cleanup();
         triggerOTPVerification(username, password, role, onSuccess);
     });
 }
-

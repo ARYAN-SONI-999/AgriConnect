@@ -36,10 +36,22 @@
 
 <body>
 
+    <script src="../js/data.js"></script>
+    <script>
+        // Sync redirect if empty cart (prevents race condition / form rendering issues)
+        const cart = DB.getCart() || [];
+        if (cart.length === 0) {
+            window.location.replace('customer-home.html');
+        }
+    </script>
+
     <nav class="navbar customer-header">
         <div class="container nav-flex">
-            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
-            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <a href="cart.html" style="color:var(--primary-green);font-size:1.2rem;text-decoration:none;font-weight:700;">← Back to Cart</a>
+                <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            </div>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -51,75 +63,135 @@
         </div>
     </nav>
 
-    <div class="container fade-in" style="padding-top: 40px;">
-        <div class="payment-container">
-            <h2 style="margin-bottom: 20px;">Secure Checkout</h2>
+    <main class="page-content">
+        <div class="container fade-in" style="padding-top: 40px;">
+            <div class="payment-container">
+                <h2 style="margin-bottom: 20px;">Secure Checkout</h2>
 
-            <div class="summary-box">
-                <h4>Order Summary</h4>
-                <div id="orderItems"></div>
-                <div class="summary-row total-row">
-                    <span>Total to Pay</span>
-                    <span>RS <span id="payAmount">0</span></span>
+                <div class="summary-box">
+                    <h4>Order Summary</h4>
+                    <div id="orderItems"></div>
+                    <div class="summary-row total-row">
+                        <span>Total to Pay</span>
+                        <span>₹<span id="payAmount">0</span></span>
+                    </div>
                 </div>
+
+                <form id="paymentForm" style="margin-top: 30px;" novalidate>
+                    <!-- Delivery Address Section -->
+                    <div style="background:#f8fafc; border-radius:12px; padding:20px; border:1px solid #e2e8f0; margin-bottom:25px;">
+                        <h4 style="margin-bottom:15px; display:flex; align-items:center; gap:8px;">📍 Delivery Address</h4>
+                        <div class="form-group">
+                            <label for="deliveryStreet">Street Address</label>
+                            <input type="text" id="deliveryStreet" name="street" placeholder="House No, Street Name" required>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                            <div class="form-group">
+                                <label for="deliveryCity">City</label>
+                                <input type="text" id="deliveryCity" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="deliveryPincode">Pincode</label>
+                                <input type="text" id="deliveryPincode" name="pincode" placeholder="6-digit pincode" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 15px;">Payment Details</h4>
+                    <div class="form-group">
+                        <label for="cardName">Cardholder Name</label>
+                        <input type="text" id="cardName" name="cardname" autocomplete="cc-name" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" name="cardnumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" required placeholder="0000 0000 0000 0000">
+                    </div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="expiry">Expiry</label>
+                            <input type="text" id="expiry" name="cc-exp" inputmode="numeric" autocomplete="cc-exp" maxlength="5" required placeholder="MM/YY">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="cvv">CVV</label>
+                            <input type="password" id="cvv" name="cvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4" required placeholder="123">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Pay Now</button>
+                </form>
             </div>
-
-            <form id="paymentForm" style="margin-top: 30px;">
-                <h4 style="margin-bottom: 15px;">Payment Details</h4>
-                <div class="form-group">
-                    <label for="cardName">Cardholder Name</label>
-                    <input type="text" id="cardName" required placeholder="John Doe">
-                </div>
-                <div class="form-group">
-                    <label for="cardNumber">Card Number</label>
-                    <input type="text" id="cardNumber" required placeholder="0000 0000 0000 0000">
-                </div>
-                <div style="display: flex; gap: 20px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="expiry">Expiry</label>
-                        <input type="text" id="expiry" required placeholder="MM/YY">
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="cvv">CVV</label>
-                        <input type="text" id="cvv" required placeholder="123">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Pay Now</button>
-            </form>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
-    <script src="../js/data.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/customer.js"></script>
     <script src="../js/validation.js"></script>
     <script>
-        const cart = DB.getCart() || [];
-        if (cart.length === 0) {
-            showToast('Your cart is empty! Redirecting...', 'warning');
-            setTimeout(() => {
-                window.location.href = 'customer-home.html';
-            }, 1500);
-        }
+        checkAuth('customer');
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-        document.getElementById('payAmount').textContent = total;
+        document.getElementById('payAmount').textContent = total.toLocaleString('en-IN');
         document.getElementById('orderItems').innerHTML = cart.map(item => `
             <div class="summary-row">
                 <span>${item.name} x${item.quantity}</span>
-                <span>RS ${item.price * item.quantity}</span>
+                <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
             </div>
         `).join('');
+
+        // Spaces formatter for Card Number
+        document.getElementById('cardNumber').addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let matches = val.match(/\d{4,16}/g);
+            let match = matches && matches[0] || '';
+            let parts = [];
+            for (let i=0, len=match.length; i<len; i+=4) {
+                parts.push(match.substring(i, i+4));
+            }
+            if (parts.length > 0) {
+                e.target.value = parts.join(' ');
+            } else {
+                e.target.value = val;
+            }
+        });
+
+        // Slash formatter for Expiry Date
+        document.getElementById('expiry').addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length >= 2) {
+                e.target.value = val.substring(0, 2) + '/' + val.substring(2, 4);
+            } else {
+                e.target.value = val;
+            }
+        });
 
         document.getElementById('paymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const street = document.getElementById('deliveryStreet').value.trim();
+            const city = document.getElementById('deliveryCity').value.trim();
+            const pincode = document.getElementById('deliveryPincode').value.trim();
             const cardNum = document.getElementById('cardNumber').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (!street || !city || !pincode) {
+                showToast('Please fill in complete delivery address.', 'warning');
+                return;
+            }
 
             if (!Validation.validateCard(cardNum)) {
                 showToast('Invalid Card Number! Please check and try again.', 'error');
+                return;
+            }
+
+            if (!Validation.validateExpiry(expiry)) {
+                showToast('Invalid or expired card expiry date (MM/YY)!', 'error');
+                return;
+            }
+
+            if (!Validation.validateCVV(cvv)) {
+                showToast('Invalid CVV code!', 'error');
                 return;
             }
 
@@ -130,16 +202,21 @@
 
             setTimeout(async () => {
                 try {
+                    const addressStr = `${street}, ${city} - ${pincode}`;
                     await DB.placeOrder({
                         items: cart,
                         total: total,
                         status: 'Pending',
-                        paymentMethod: 'Card'
+                        paymentMethod: 'Card',
+                        deliveryAddress: addressStr
                     });
+                    // Redirect ONLY on success
+                    window.location.href = 'order-placed.html';
                 } catch(err) {
-                    console.warn('Order save error:', err);
+                    showToast('Failed to process your order. Please try again.', 'error');
+                    btn.innerHTML = 'Pay Now';
+                    btn.disabled = false;
                 }
-                window.location.href = 'order-placed.html';
             }, 2000);
         });
     </script>

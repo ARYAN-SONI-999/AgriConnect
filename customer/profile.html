@@ -7,6 +7,14 @@
     <title>My Profile - AgriConnect</title>
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/customer.css">
+    <style>
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -14,67 +22,93 @@
     <nav class="navbar customer-header">
         <div class="container nav-flex">
             <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
-            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+            <button class="mobile-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
             </button>
             <div class="nav-links">
                 <a href="customer-home.html">Home</a>
+                <a href="wishlist.html">Wishlist</a>
+                <a href="cart.html" class="cart-icon">
+                    🛒 <span id="cartCount" class="cart-count">0</span>
+                </a>
+                <a href="profile.html" style="color: var(--primary-green)">Profile</a>
                 <div class="auth-links"></div>
             </div>
         </div>
     </nav>
 
-    <div class="container fade-in" style="padding-top: 40px;">
-        <h1>My Profile</h1>
+    <main class="page-content">
+        <div class="container fade-in" style="padding-top: 40px;">
+            <h1>My Profile</h1>
 
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; margin-top: 30px;">
-            <!-- User Info -->
-            <div class="card">
-                <h3>Account Details</h3>
-                <form id="profileForm" style="margin-top: 20px;">
-                    <div class="form-group">
-                        <label for="nameInput">Full Name</label>
-                        <input type="text" id="nameInput" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
-                    </div>
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label for="emailInput">Email Address</label>
-                        <input type="email" id="emailInput" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
-                    </div>
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label for="mobileInput">Mobile Number</label>
-                        <input type="text" id="mobileInput" required placeholder="10-digit number" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
-                    </div>
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label for="locationInput">Delivery Address</label>
-                        <input type="text" id="locationInput" placeholder="Address / Location" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; border:none; background: var(--primary-green);">Save Profile</button>
-                </form>
-            </div>
+            <div class="profile-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; margin-top: 30px;">
+                <!-- User Info -->
+                <div class="card">
+                    <h3>Account Details</h3>
+                    <form id="profileForm" style="margin-top: 20px;" novalidate>
+                        <div class="form-group">
+                            <label for="nameInput">Full Name</label>
+                            <input type="text" id="nameInput" name="name" autocomplete="name" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="emailInput">Email Address</label>
+                            <input type="email" id="emailInput" name="email" autocomplete="email" required style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="mobileInput">Mobile Number</label>
+                            <input type="tel" id="mobileInput" name="mobile" autocomplete="tel" required placeholder="10-digit number" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="locationInput">Delivery Address</label>
+                            <input type="text" id="locationInput" name="location" autocomplete="street-address" placeholder="Address / Location" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
 
-            <!-- Order History -->
-            <div class="card">
-                <h3>Order History</h3>
-                <div id="orderHistory" style="margin-top: 20px;">
-                    <!-- Populated by JS -->
+                        <hr style="margin:25px 0 15px; border:none; border-top:1px solid #eee;">
+                        <h4 style="margin-bottom:12px; font-size:0.95rem;">Change Password</h4>
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="newPassword" placeholder="Min 8 chars, 1 uppercase, 1 number" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Re-enter new password" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 25px; border:none; background: var(--primary-green);">Save Profile</button>
+                    </form>
+                </div>
+
+                <!-- Order History -->
+                <div class="card">
+                    <h3>Order History</h3>
+                    <div id="orderHistory" style="margin-top: 20px;">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
-    <script src="../js/data.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/customer.js"></script>
+    <script src="../js/data.js?v=3"></script>
+    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/customer.js?v=3"></script>
+    <script src="../js/validation.js"></script>
     <script>
+        checkAuth('customer');
         const user = DB.getCurrentUser();
         if (user) {
             document.getElementById('nameInput').value = user.name || '';
             document.getElementById('emailInput').value = user.email || '';
             document.getElementById('mobileInput').value = user.mobile || '';
             document.getElementById('locationInput').value = user.location || '';
+            updateCartCount();
         }
 
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
@@ -85,18 +119,65 @@
             const email = document.getElementById('emailInput').value;
             const mobile = document.getElementById('mobileInput').value;
             const location = document.getElementById('locationInput').value;
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (!Validation.validateEmail(email)) {
+                showToast('Invalid Email Address!', 'error');
+                return;
+            }
+
+            if (!Validation.validateMobile(mobile)) {
+                showToast('Invalid Mobile Number!', 'error');
+                return;
+            }
+
+            const updatedData = { name, email, location, mobile };
+
+            // Handle Password Change Verification
+            if (newPassword) {
+                if (!currentPassword) {
+                    showToast('Please provide your current password.', 'warning');
+                    return;
+                }
+                
+                // Get fresh user record for password comparison
+                const users = DB.getUsers();
+                const freshUser = users.find(u => u.id === user.id);
+                const currentHashed = Validation.hashPassword(currentPassword);
+                
+                if (freshUser.password !== currentHashed) {
+                    showToast('Current password incorrect!', 'error');
+                    return;
+                }
+
+                const pwdRes = Validation.validatePassword(newPassword);
+                if (!pwdRes.valid) {
+                    showToast(pwdRes.message, 'error');
+                    return;
+                }
+
+                if (newPassword !== confirmNewPassword) {
+                    showToast('New passwords do not match!', 'error');
+                    return;
+                }
+
+                updatedData.password = Validation.hashPassword(newPassword);
+            }
 
             try {
-                const res = await API.updateUser(user.id, { name, email, location, mobile });
+                const res = await API.updateUser(user.id, updatedData);
                 if (res.success) {
                     const updatedUser = { ...user, name, email, location, mobile };
                     localStorage.setItem(DB.CURRENT_USER, JSON.stringify(updatedUser));
 
-                    // Update user in local storage array cache
+                    // Update user cache in users array list
                     let users = DB.getUsers();
                     const idx = users.findIndex(u => u.id === user.id);
                     if (idx !== -1) {
-                        users[idx] = { ...users[idx], name, email, location, mobile };
+                        users[idx] = { ...users[idx], ...updatedData };
                         localStorage.setItem(DB.USERS, JSON.stringify(users));
                     }
 
@@ -110,29 +191,31 @@
             }
         });
 
-        const orders = JSON.parse(localStorage.getItem(DB.ORDERS) || '[]');
-        // Filter orders for the current customer
+        const orders = DB.getOrders() || [];
         const userOrders = user ? orders.filter(o => o.customerId === user.id) : [];
 
         const orderContainer = document.getElementById('orderHistory');
         if (userOrders.length === 0) {
             orderContainer.innerHTML = '<p class="text-muted">No orders yet.</p>';
         } else {
-            orderContainer.innerHTML = userOrders.reverse().map(order => `
+            orderContainer.innerHTML = userOrders.reverse().map(order => {
+                const badgeClass = order.status === 'Accepted' || order.status === 'Delivered' ? 'badge-green' : order.status === 'Rejected' ? 'badge-red' : 'badge-yellow';
+                return `
                 <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <strong>Order #${order.id}</strong>
-                        <span style="color: var(--primary-green)">RS ${order.total}</span>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items:center;">
+                        <strong><a href="order-detail.html?id=${order.id}" style="color:var(--text-dark); text-decoration:none; border-bottom:1px dashed var(--primary-green)">Order #${order.id}</a></strong>
+                        <span style="font-weight:700; color: var(--primary-green)">₹${(order.total || 0).toLocaleString('en-IN')}</span>
                     </div>
-                    <div style="font-size: 0.9rem; color: var(--text-muted);">
-                        ${order.date} • ${itemCount(order.items)} Items • ${order.status}
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size: 0.9rem; color: var(--text-muted); margin-top:5px;">
+                        <span>Placed on ${new Date(order.date).toLocaleDateString('en-IN')} • ${itemCount(order.items)} Items</span>
+                        <span class="badge ${badgeClass}">${order.status}</span>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function itemCount(items) {
-            return items.reduce((sum, i) => sum + i.quantity, 0);
+            return (items || []).reduce((sum, i) => sum + i.quantity, 0);
         }
     </script>
 </body>

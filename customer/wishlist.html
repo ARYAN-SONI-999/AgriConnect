@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - AgriConnect</title>
+    <meta name="description" content="View and manage your saved favorite products on AgriConnect.">
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/customer.css">
+</head>
+<body>
+    <nav class="navbar customer-header">
+        <div class="container nav-flex">
+            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </button>
+            <div class="nav-links">
+                <a href="customer-home.html">Home</a>
+                <a href="wishlist.html" style="color: var(--primary-green)">❤️ Wishlist</a>
+                <a href="cart.html" class="cart-icon">🛒 <span id="cartCount" class="cart-count">0</span></a>
+                <a href="profile.html">Profile</a>
+                <div class="auth-links"></div>
+            </div>
+        </div>
+    </nav>
+    <main class="page-content">
+        <div class="container" style="padding-top: 40px;">
+            <h1 class="fade-in">❤️ My Wishlist</h1>
+            <p class="fade-in" style="color: var(--text-muted); margin-bottom: 30px;">Products you've saved for later</p>
+            <div class="product-grid" id="wishlistContainer">
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px;">Loading your wishlist...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="../js/translate.js"></script>
+    <script src="../js/data.js?v=3"></script>
+    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/customer.js?v=3"></script>
+    <script>
+        checkAuth('customer');
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const wishlist = DB.getWishlist();
+            const products = DB.getProducts() || [];
+            const container = document.getElementById('wishlistContainer');
+            const wishlisted = products.filter(p => wishlist.includes(String(p.id)) || wishlist.includes(p.id));
+            if (wishlisted.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+                        <div style="font-size:3rem;margin-bottom:15px;">🤍</div>
+                        <h3 style="color:var(--text-dark);margin-bottom:10px;">Your wishlist is empty</h3>
+                        <p style="color:var(--text-muted);margin-bottom:20px;">Start browsing and save products you love!</p>
+                        <a href="customer-home.html" class="btn btn-primary">Browse Products</a>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = wishlisted.map(product => `
+                <div class="product-card fade-in" style="cursor:pointer;" onclick="openProductDetail(${product.id}, event)">
+                    <div class="product-img">
+                        <img src="${product.image?.startsWith('http') || product.image?.startsWith('..') ? product.image : '../images/' + (product.image || '')}" 
+                             onerror="this.src='https://placehold.co/400x300?text=${encodeURIComponent(product.name)}'" 
+                             alt="${escapeHTML(product.name)}" loading="lazy">
+                        <button class="wishlist-btn active" onclick="event.stopPropagation(); removeFromWishlistAndRefresh(${product.id})" aria-label="Remove from wishlist">❤️</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${escapeHTML(product.name)}</div>
+                        <div class="product-meta">${escapeHTML(product.type)}</div>
+                        <div class="product-footer">
+                            <span class="price">₹${product.price}/kg</span>
+                            <button class="btn-add" onclick="event.stopPropagation(); addToCart(${product.id})">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        function removeFromWishlistAndRefresh(productId) {
+            DB.removeFromWishlist(productId);
+            location.reload();
+        }
+    </script>
+</body>
+</html>

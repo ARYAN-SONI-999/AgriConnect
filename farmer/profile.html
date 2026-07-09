@@ -14,7 +14,7 @@
     <nav class="navbar farmer-header">
         <div class="container nav-flex">
             <a href="farmer-home.html" class="logo">🌱 AgriConnect</a>
-            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+            <button class="mobile-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -29,49 +29,68 @@
         </div>
     </nav>
 
-    <div class="container fade-in" style="padding-top: 40px;">
-        <h1>My Profile</h1>
+    <main class="page-content">
+        <div class="container fade-in" style="padding-top: 40px;">
+            <h1>My Profile</h1>
 
-        <div class="card" style="max-width: 600px; margin: 30px auto 0;">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div
-                    style="width: 100px; height: 100px; background: #fff3e0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 20px;">
-                    👨‍🌾
+            <div class="card" style="max-width: 600px; margin: 30px auto 0;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div
+                        style="width: 100px; height: 100px; background: #fff3e0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 20px;">
+                        👨‍🌾
+                    </div>
+                    <h2 id="farmerName">John Farmer</h2>
+                    <span
+                        style="background: var(--vibrant-orange); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">Verified
+                        Farmer</span>
                 </div>
-                <h2 id="farmerName">John Farmer</h2>
-                <span
-                    style="background: var(--vibrant-orange); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem;">Verified
-                    Farmer</span>
+
+                <form id="profileForm" novalidate>
+                    <div class="form-group">
+                        <label for="nameInput">Full Name</label>
+                        <input type="text" id="nameInput" name="name" autocomplete="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emailInput">Email</label>
+                        <input type="email" id="emailInput" name="email" autocomplete="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobileInput">Mobile Number</label>
+                        <input type="tel" id="mobileInput" name="mobile" autocomplete="tel" required placeholder="10-digit number">
+                    </div>
+                    <div class="form-group">
+                        <label for="locationInput">Farm Location</label>
+                        <input type="text" id="locationInput" name="location" autocomplete="street-address" required>
+                    </div>
+
+                    <hr style="margin:25px 0 15px; border:none; border-top:1px solid #eee;">
+                    <h4 style="margin-bottom:12px; font-size:0.95rem;">Change Password</h4>
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Min 8 chars, 1 uppercase, 1 number" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="confirmNewPassword">Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Re-enter new password" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; background: var(--vibrant-orange); border:none; margin-top:20px;">Save Profile</button>
+                </form>
             </div>
-
-            <form id="profileForm">
-                <div class="form-group">
-                    <label for="nameInput">Full Name</label>
-                    <input type="text" id="nameInput" required>
-                </div>
-                <div class="form-group">
-                    <label for="emailInput">Email</label>
-                    <input type="email" id="emailInput" required>
-                </div>
-                <div class="form-group">
-                    <label for="mobileInput">Mobile Number</label>
-                    <input type="text" id="mobileInput" required placeholder="10-digit number">
-                </div>
-                <div class="form-group">
-                    <label for="locationInput">Farm Location</label>
-                    <input type="text" id="locationInput" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%; background: var(--vibrant-orange); border:none;">Save Profile</button>
-            </form>
         </div>
-    </div>
+    </main>
 
     <script src="../js/translate.js"></script>
-    <script src="../js/data.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/farmer.js"></script>
+    <script src="../js/data.js?v=3"></script>
+    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/farmer.js?v=3"></script>
+    <script src="../js/validation.js"></script>
     <script>
+        checkAuth('farmer');
         const user = DB.getCurrentUser();
         if (user) {
             document.getElementById('farmerName').textContent = user.name;
@@ -89,9 +108,48 @@
             const email = document.getElementById('emailInput').value;
             const mobile = document.getElementById('mobileInput').value;
             const location = document.getElementById('locationInput').value;
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (!Validation.validateEmail(email)) {
+                showToast('Invalid Email Address!', 'error');
+                return;
+            }
+
+            if (!Validation.validateMobile(mobile)) {
+                showToast('Invalid Mobile Number!', 'error');
+                return;
+            }
+
+            const updatedData = { name, email, location, mobile };
+
+            if (newPassword) {
+                if (!currentPassword) {
+                    showToast('Please enter your current password.', 'warning');
+                    return;
+                }
+                const users = DB.getUsers();
+                const freshUser = users.find(u => u.id === user.id);
+                if (freshUser.password !== Validation.hashPassword(currentPassword)) {
+                    showToast('Current password incorrect!', 'error');
+                    return;
+                }
+                const pwdRes = Validation.validatePassword(newPassword);
+                if (!pwdRes.valid) {
+                    showToast(pwdRes.message, 'error');
+                    return;
+                }
+                if (newPassword !== confirmNewPassword) {
+                    showToast('New passwords do not match!', 'error');
+                    return;
+                }
+                updatedData.password = Validation.hashPassword(newPassword);
+            }
 
             try {
-                const res = await API.updateUser(user.id, { name, email, location, mobile });
+                const res = await API.updateUser(user.id, updatedData);
                 if (res.success) {
                     const updatedUser = { ...user, name, email, location, mobile };
                     localStorage.setItem(DB.CURRENT_USER, JSON.stringify(updatedUser));
@@ -100,7 +158,7 @@
                     let users = DB.getUsers();
                     const idx = users.findIndex(u => u.id === user.id);
                     if (idx !== -1) {
-                        users[idx] = { ...users[idx], name, email, location, mobile };
+                        users[idx] = { ...users[idx], ...updatedData };
                         localStorage.setItem(DB.USERS, JSON.stringify(users));
                     }
 

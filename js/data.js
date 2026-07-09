@@ -3,7 +3,7 @@
  * Handles data persistence using localStorage and connects to SQLite backend.
  */
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = window.location.origin + '/api';
 
 const API = {
     async login(username, password, role) {
@@ -114,11 +114,61 @@ const API = {
         return await res.json();
     },
 
+    async updateProduct(productId, updatedFields) {
+        const res = await fetch(`${API_BASE}/products/${productId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedFields)
+        });
+        if (!res.ok) throw new Error('Failed to update product');
+        return await res.json();
+    },
+
     async deleteProduct(productId) {
         const res = await fetch(`${API_BASE}/products/${productId}`, {
             method: 'DELETE'
         });
         if (!res.ok) throw new Error('Failed to delete product');
+        return await res.json();
+    },
+
+    async getReviews(productId) {
+        const res = await fetch(`${API_BASE}/products/${productId}/reviews`);
+        if (!res.ok) throw new Error('Failed to fetch reviews');
+        return await res.json();
+    },
+
+    async addReview(reviewData) {
+        const res = await fetch(`${API_BASE}/reviews`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reviewData)
+        });
+        if (!res.ok) throw new Error('Failed to add review');
+        return await res.json();
+    },
+
+    async getWishlist(userId) {
+        const res = await fetch(`${API_BASE}/wishlist/${userId}`);
+        if (!res.ok) throw new Error('Failed to fetch wishlist');
+        return await res.json();
+    },
+
+    async addToWishlistAPI(userId, productId) {
+        const res = await fetch(`${API_BASE}/wishlist`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, productId })
+        });
+        if (!res.ok) throw new Error('Failed to add to wishlist');
+        return await res.json();
+    },
+
+    async removeFromWishlistAPI(userId, productId) {
+        const res = await fetch(`${API_BASE}/wishlist/${userId}/${productId}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error('Failed to remove from wishlist');
         return await res.json();
     }
 };
@@ -131,15 +181,16 @@ const DB = {
     ORDERS: 'agri_orders',
     CURRENT_USER: 'agri_current_user',
     CART: 'agri_cart',
+    WISHLIST: 'agri_wishlist_v1',
 
     // Initialization
     init() {
         if (!localStorage.getItem(this.USERS)) {
             localStorage.setItem(this.USERS, JSON.stringify([
-                { id: 'admin', name: 'System Admin', username: 'admin', email: 'admin@agri.com', password: btoa('admin'), role: 'admin' },
-                { id: 'f1', name: 'John Farmer (Farmer 1)', username: 'farmer1', email: 'farmer1@agri.com', password: btoa('pass1'), role: 'farmer', location: 'Green Valley' },
-                { id: 'f2', name: 'Sarah Miller (Farmer 2)', username: 'farmer2', email: 'farmer2@agri.com', password: btoa('pass2'), role: 'farmer', location: 'Sunny Hills' },
-                { id: 'c1', name: 'Alice Customer', username: 'customer', email: 'customer@agri.com', password: btoa('pass1'), role: 'customer' }
+                { id: 'admin', name: 'System Admin', username: 'admin', email: 'admin@agri.com', password: btoa('admin'), role: 'admin', status: 'active' },
+                { id: 'f1', name: 'John Farmer (Farmer 1)', username: 'farmer1', email: 'farmer1@agri.com', password: btoa('pass1'), role: 'farmer', location: 'Green Valley', status: 'active' },
+                { id: 'f2', name: 'Sarah Miller (Farmer 2)', username: 'farmer2', email: 'farmer2@agri.com', password: btoa('pass2'), role: 'farmer', location: 'Sunny Hills', status: 'active' },
+                { id: 'c1', name: 'Alice Customer', username: 'customer', email: 'customer@agri.com', password: btoa('pass1'), role: 'customer', status: 'active' }
             ]));
         }
 
@@ -154,93 +205,95 @@ const DB = {
             return farmer1Crops.includes(cropName) ? 'f1' : 'f2';
         };
 
-        // Initialize Products (Forcing update to ensure new data appears)
+        // Initialize Products
         const products = [
             // --- Organic Category (15 items) ---
-            { id: 101, name: 'Organic Kale', category: 'organic', price: 80, farmerId: getFarmer('Organic Kale'), image: '../photos/kale.jpeg', type: 'Vegetable' },
-            { id: 102, name: 'Red Tomatoes', category: 'organic', price: 45, farmerId: getFarmer('Red Tomatoes'), image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80', type: 'Vegetable' },
-            { id: 103, name: 'Fresh Spinach', category: 'organic', price: 60, farmerId: getFarmer('Fresh Spinach'), image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80', type: 'Vegetable' },
-            { id: 104, name: 'Organic Avocados', category: 'organic', price: 200, farmerId: getFarmer('Organic Avocados'), image: '../photos/avocado.jpeg', type: 'Fruit' },
-            { id: 105, name: 'Sweet Potatoes', category: 'organic', price: 55, farmerId: getFarmer('Sweet Potatoes'), image: '../photos/sweetpoptato.webp', type: 'Vegetable' },
-            { id: 106, name: 'Fresh Broccoli', category: 'organic', price: 90, farmerId: getFarmer('Fresh Broccoli'), image: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=400&q=80', type: 'Vegetable' },
-            { id: 107, name: 'Bell Peppers', category: 'organic', price: 120, farmerId: getFarmer('Bell Peppers'), image: '../photos/bellpeper.jpeg', type: 'Vegetable' },
-            { id: 108, name: 'Organic Carrots', category: 'organic', price: 50, farmerId: getFarmer('Organic Carrots'), image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80', type: 'Vegetable' },
-            { id: 109, name: 'Crisp Cucumber', category: 'organic', price: 40, farmerId: getFarmer('Crisp Cucumber'), image: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=400&q=80', type: 'Vegetable' },
-            { id: 110, name: 'Fresh Strawberries', category: 'organic', price: 150, farmerId: getFarmer('Fresh Strawberries'), image: '../photos/strawbeey.webp', type: 'Fruit' },
-            { id: 111, name: 'Blueberries', category: 'organic', price: 180, farmerId: getFarmer('Blueberries'), image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=400&q=80', type: 'Fruit' },
-            { id: 112, name: 'Organic Honey', category: 'organic', price: 350, farmerId: getFarmer('Organic Honey'), image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=400&q=80', type: 'Pantry' },
-            { id: 113, name: 'Brown Rice', category: 'organic', price: 95, farmerId: getFarmer('Brown Rice'), image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80', type: 'Grains' },
-            { id: 114, name: 'Quinoa', category: 'organic', price: 220, farmerId: getFarmer('Quinoa'), image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80', type: 'Grains' },
-            { id: 115, name: 'Raw Almonds', category: 'organic', price: 400, farmerId: getFarmer('Raw Almonds'), image: '../photos/raw_almonds.jpeg', type: 'Nuts' },
+            { id: 101, name: 'Organic Kale', category: 'organic', price: 80, farmerId: getFarmer('Organic Kale'), image: '../photos/kale.jpeg', type: 'Vegetable', quantity: 100, description: 'Fresh curly organic kale leaves.' },
+            { id: 102, name: 'Red Tomatoes', category: 'organic', price: 45, farmerId: getFarmer('Red Tomatoes'), image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80', type: 'Vegetable', quantity: 150, description: 'Red, ripe tomatoes direct from vine.' },
+            { id: 103, name: 'Fresh Spinach', category: 'organic', price: 60, farmerId: getFarmer('Fresh Spinach'), image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80', type: 'Vegetable', quantity: 80, description: 'Crisp green spinach leaves.' },
+            { id: 104, name: 'Organic Avocados', category: 'organic', price: 200, farmerId: getFarmer('Organic Avocados'), image: '../photos/avocado.jpeg', type: 'Fruit', quantity: 45, description: 'Rich, buttery Haas avocados.' },
+            { id: 105, name: 'Sweet Potatoes', category: 'organic', price: 55, farmerId: getFarmer('Sweet Potatoes'), image: '../photos/sweetpotato.webp', type: 'Vegetable', quantity: 120, description: 'Naturally sweet and earthy sweet potatoes.' },
+            { id: 106, name: 'Fresh Broccoli', category: 'organic', price: 90, farmerId: getFarmer('Fresh Broccoli'), image: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=400&q=80', type: 'Vegetable', quantity: 90, description: 'Green broccoli heads packed with nutrients.' },
+            { id: 107, name: 'Bell Peppers', category: 'organic', price: 120, farmerId: getFarmer('Bell Peppers'), image: '../photos/bellpeper.jpeg', type: 'Vegetable', quantity: 70, description: 'Sweet and crunchy bell peppers.' },
+            { id: 108, name: 'Organic Carrots', category: 'organic', price: 50, farmerId: getFarmer('Organic Carrots'), image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80', type: 'Vegetable', quantity: 130, description: 'Juicy, sweet organic carrots.' },
+            { id: 109, name: 'Crisp Cucumber', category: 'organic', price: 40, farmerId: getFarmer('Crisp Cucumber'), image: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=400&q=80', type: 'Vegetable', quantity: 110, description: 'Cool and hydrating cucumbers.' },
+            { id: 110, name: 'Fresh Strawberries', category: 'organic', price: 150, farmerId: getFarmer('Fresh Strawberries'), image: '../photos/strawberry.webp', type: 'Fruit', quantity: 50, description: 'Delicious and sweet red strawberries.' },
+            { id: 111, name: 'Blueberries', category: 'organic', price: 180, farmerId: getFarmer('Blueberries'), image: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?auto=format&fit=crop&w=400&q=80', type: 'Fruit', quantity: 60, description: 'Plump antioxidant-rich blueberries.' },
+            { id: 112, name: 'Organic Honey', category: 'organic', price: 350, farmerId: getFarmer('Organic Honey'), image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=400&q=80', type: 'Pantry', quantity: 30, description: 'Pure, raw wildflower organic honey.' },
+            { id: 113, name: 'Brown Rice', category: 'organic', price: 95, farmerId: getFarmer('Brown Rice'), image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80', type: 'Grains', quantity: 200, description: 'Unpolished whole grain brown rice.' },
+            { id: 114, name: 'Quinoa', category: 'organic', price: 220, farmerId: getFarmer('Quinoa'), image: 'https://images.unsplash.com/photo-1604578762246-41134e37f9cc?auto=format&fit=crop&w=400&q=80', type: 'Grains', quantity: 120, description: 'High-protein organic white quinoa grains.' },
+            { id: 115, name: 'Raw Almonds', category: 'organic', price: 400, farmerId: getFarmer('Raw Almonds'), image: '../photos/raw_almonds.jpeg', type: 'Nuts', quantity: 80, description: 'Premium raw California almonds.' },
 
             // --- Fruits Category (15 items) ---
-            { id: 201, name: 'Premium Bananas', category: 'fruits', price: 60, farmerId: getFarmer('Premium Bananas'), image: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=400&q=80', type: 'Fruit' },
-            { id: 202, name: 'Green Grapes', category: 'fruits', price: 100, farmerId: getFarmer('Green Grapes'), image: '../photos/green-graps.jpg', type: 'Fruit' },
-            { id: 203, name: 'Red Apples', category: 'fruits', price: 140, farmerId: getFarmer('Red Apples'), image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80', type: 'Fruit' },
-            { id: 204, name: 'Juicy Oranges', category: 'fruits', price: 80, farmerId: getFarmer('Juicy Oranges'), image: '../photos/orange.webp', type: 'Citrus' },
-            { id: 205, name: 'Ripe Mangoes', category: 'fruits', price: 150, farmerId: getFarmer('Ripe Mangoes'), image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=400&q=80', type: 'Tropical' },
-            { id: 206, name: 'Pineapple', category: 'fruits', price: 90, farmerId: getFarmer('Pineapple'), image: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=400&q=80', type: 'Tropical' },
-            { id: 207, name: 'Watermelon', category: 'fruits', price: 40, farmerId: getFarmer('Watermelon'), image: '../photos/watermelon-6640124_1280.jpg', type: 'Melon' },
-            { id: 208, name: 'Pomegranates', category: 'fruits', price: 160, farmerId: getFarmer('Pomegranates'), image: 'https://images.unsplash.com/photo-1615484477778-ca3b77940c25?auto=format&fit=crop&w=400&q=80', type: 'Exotic' },
-            { id: 209, name: 'Dragon Fruit', category: 'fruits', price: 250, farmerId: getFarmer('Dragon Fruit'), image: 'https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80', type: 'Exotic' },
-            { id: 210, name: 'Kiwi', category: 'fruits', price: 200, farmerId: getFarmer('Kiwi'), image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=400&q=80', type: 'Berry' },
-            { id: 211, name: 'Papaya', category: 'fruits', price: 60, farmerId: getFarmer('Papaya'), image: '../photos/papaya.jpeg', type: 'Tropical' },
-            { id: 212, name: 'Cherries', category: 'fruits', price: 300, farmerId: getFarmer('Cherries'), image: '../photos/cherry.jpg', type: 'Berry' },
-            { id: 213, name: 'Pears', category: 'fruits', price: 110, farmerId: getFarmer('Pears'), image: '../photos/pears.jpeg', type: 'Pome' },
-            { id: 214, name: 'Peaches', category: 'fruits', price: 130, farmerId: getFarmer('Peaches'), image: 'https://images.unsplash.com/photo-1595123550441-d377e017de6a?auto=format&fit=crop&w=400&q=80', type: 'Stone Fruit' },
-            { id: 215, name: 'Plums', category: 'fruits', price: 120, farmerId: getFarmer('Plums'), image: 'https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=400&q=80', type: 'Stone Fruit' },
+            { id: 201, name: 'Premium Bananas', category: 'fruits', price: 60, farmerId: getFarmer('Premium Bananas'), image: 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?auto=format&fit=crop&w=400&q=80', type: 'Fruit', quantity: 150, description: 'Sweet and nutritious yellow bananas.' },
+            { id: 202, name: 'Green Grapes', category: 'fruits', price: 100, farmerId: getFarmer('Green Grapes'), image: '../photos/green-graps.jpg', type: 'Fruit', quantity: 100, description: 'Seedless crisp green grapes.' },
+            { id: 203, name: 'Red Apples', category: 'fruits', price: 140, farmerId: getFarmer('Red Apples'), image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80', type: 'Fruit', quantity: 120, description: 'Crunchy sweet red apples.' },
+            { id: 204, name: 'Juicy Oranges', category: 'fruits', price: 80, farmerId: getFarmer('Juicy Oranges'), image: '../photos/orange.webp', type: 'Citrus', quantity: 110, description: 'Tangy and sweet fresh oranges.' },
+            { id: 205, name: 'Ripe Mangoes', category: 'fruits', price: 150, farmerId: getFarmer('Ripe Mangoes'), image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=400&q=80', type: 'Tropical', quantity: 80, description: 'Sweet and aromatic seasonal mangoes.' },
+            { id: 206, name: 'Pineapple', category: 'fruits', price: 90, farmerId: getFarmer('Pineapple'), image: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=400&q=80', type: 'Tropical', quantity: 60, description: 'Queen pineapple packed with juice.' },
+            { id: 207, name: 'Watermelon', category: 'fruits', price: 40, farmerId: getFarmer('Watermelon'), image: '../photos/watermelon-6640124_1280.jpg', type: 'Melon', quantity: 200, description: 'Refreshing sweet summer watermelons.' },
+            { id: 208, name: 'Pomegranates', category: 'fruits', price: 160, farmerId: getFarmer('Pomegranates'), image: 'https://images.unsplash.com/photo-1615484477778-ca3b77940c25?auto=format&fit=crop&w=400&q=80', type: 'Exotic', quantity: 90, description: 'Ruby-red, juicy pomegranate seeds.' },
+            { id: 209, name: 'Dragon Fruit', category: 'fruits', price: 250, farmerId: getFarmer('Dragon Fruit'), image: 'https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80', type: 'Exotic', quantity: 40, description: 'Vibrant pink dragon fruit with white flesh.' },
+            { id: 210, name: 'Kiwi', category: 'fruits', price: 200, farmerId: getFarmer('Kiwi'), image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=400&q=80', type: 'Berry', quantity: 70, description: 'Zesty kiwi fruits rich in vitamin C.' },
+            { id: 211, name: 'Papaya', category: 'fruits', price: 60, farmerId: getFarmer('Papaya'), image: '../photos/papaya.jpeg', type: 'Tropical', quantity: 100, description: 'Ripe orange papaya fruit.' },
+            { id: 212, name: 'Cherries', category: 'fruits', price: 300, farmerId: getFarmer('Cherries'), image: '../photos/cherry.jpg', type: 'Berry', quantity: 50, description: 'Sweet dark red cherries.' },
+            { id: 213, name: 'Pears', category: 'fruits', price: 110, farmerId: getFarmer('Pears'), image: '../photos/pears.jpeg', type: 'Pome', quantity: 120, description: 'Crisp and sweet green pears.' },
+            { id: 214, name: 'Peaches', category: 'fruits', price: 130, farmerId: getFarmer('Peaches'), image: 'https://images.unsplash.com/photo-1595123550441-d377e017de6a?auto=format&fit=crop&w=400&q=80', type: 'Stone Fruit', quantity: 80, description: 'Fuzzy sweet ripe peaches.' },
+            { id: 215, name: 'Plums', category: 'fruits', price: 120, farmerId: getFarmer('Plums'), image: 'https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=400&q=80', type: 'Stone Fruit', quantity: 95, description: 'Sweet and tart fresh purple plums.' },
 
             // --- Seasonal Category (15 items) ---
-            { id: 301, name: 'Winter Squash', category: 'seasonal', price: 70, farmerId: getFarmer('Winter Squash'), image: '../photos/winter_squash.jpeg', type: 'Winter' },
-            { id: 302, name: 'Pumpkins', category: 'seasonal', price: 150, farmerId: getFarmer('Pumpkins'), image: '../photos/pumpkin.jpeg', type: 'Autumn' },
-            { id: 303, name: 'Sweet Corn', category: 'seasonal', price: 30, farmerId: getFarmer('Sweet Corn'), image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=400&q=80', type: 'Summer' },
-            { id: 304, name: 'Radishes', category: 'seasonal', price: 40, farmerId: getFarmer('Radishes'), image: 'https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=400&q=80', type: 'Spring' },
-            { id: 305, name: 'Asparagus', category: 'seasonal', price: 180, farmerId: getFarmer('Asparagus'), image: 'https://images.unsplash.com/photo-1515471209610-dae1c92d8777?auto=format&fit=crop&w=400&q=80', type: 'Spring' },
-            { id: 306, name: 'Brussels Sprouts', category: 'seasonal', price: 90, farmerId: getFarmer('Brussels Sprouts'), image: '../photos/brucceels.jpg', type: 'Winter' },
-            { id: 307, name: 'Mushrooms', category: 'seasonal', price: 120, farmerId: getFarmer('Mushrooms'), image: '../photos/mushrooms.jpg', type: 'Autumn' },
-            { id: 308, name: 'Green Peas', category: 'seasonal', price: 80, farmerId: getFarmer('Green Peas'), image: '../photos/greenpeace.jpg', type: 'Spring' },
-            { id: 309, name: 'Cauliflower', category: 'seasonal', price: 50, farmerId: getFarmer('Cauliflower'), image: 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=400&q=80', type: 'Winter' },
-            { id: 310, name: 'Eggplant', category: 'seasonal', price: 60, farmerId: getFarmer('Eggplant'), image: '../photos/eggphant.webp', type: 'Summer' },
-            { id: 311, name: 'Zucchini', category: 'seasonal', price: 45, farmerId: getFarmer('Zucchini'), image: '../photos/zuchhini.webp', type: 'Summer' },
-            { id: 312, name: 'Okra', category: 'seasonal', price: 70, farmerId: getFarmer('Okra'), image: '../photos/okra.jpg', type: 'Summer' },
-            { id: 313, name: 'Beetroot', category: 'seasonal', price: 50, farmerId: getFarmer('Beetroot'), image: '../photos/beetroot.webp', type: 'Winter' },
-            { id: 314, name: 'Cabbage', category: 'seasonal', price: 35, farmerId: getFarmer('Cabbage'), image: '../photos/cabbage.webp', type: 'Winter' },
-            { id: 315, name: 'Figs', category: 'seasonal', price: 200, farmerId: getFarmer('Figs'), image: '../photos/figs.jpeg', type: 'Autumn' }
+            { id: 301, name: 'Winter Squash', category: 'seasonal', price: 70, farmerId: getFarmer('Winter Squash'), image: '../photos/winter_squash.jpeg', type: 'Winter', quantity: 110, description: 'Hearty winter squash perfect for soups.' },
+            { id: 302, name: 'Pumpkins', category: 'seasonal', price: 150, farmerId: getFarmer('Pumpkins'), image: '../photos/pumpkin.jpeg', type: 'Autumn', quantity: 80, description: 'Large round orange pumpkins.' },
+            { id: 303, name: 'Sweet Corn', category: 'seasonal', price: 30, farmerId: getFarmer('Sweet Corn'), image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=400&q=80', type: 'Summer', quantity: 250, description: 'Sweet juicy yellow corn cobs.' },
+            { id: 304, name: 'Radishes', category: 'seasonal', price: 40, farmerId: getFarmer('Radishes'), image: 'https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=400&q=80', type: 'Spring', quantity: 140, description: 'Crisp and peppery fresh radishes.' },
+            { id: 305, name: 'Asparagus', category: 'seasonal', price: 180, farmerId: getFarmer('Asparagus'), image: 'https://images.unsplash.com/photo-1515471209610-dae1c92d8777?auto=format&fit=crop&w=400&q=80', type: 'Spring', quantity: 60, description: 'Tender green asparagus spears.' },
+            { id: 306, name: 'Brussels Sprouts', category: 'seasonal', price: 90, farmerId: getFarmer('Brussels Sprouts'), image: '../photos/brusselsprouts.jpg', type: 'Winter', quantity: 90, description: 'Nutritious mini green cabbages.' },
+            { id: 307, name: 'Mushrooms', category: 'seasonal', price: 120, farmerId: getFarmer('Mushrooms'), image: '../photos/mushrooms.jpg', type: 'Autumn', quantity: 100, description: 'Earthy white button mushrooms.' },
+            { id: 308, name: 'Green Peas', category: 'seasonal', price: 80, farmerId: getFarmer('Green Peas'), image: '../photos/greenpeas.jpg', type: 'Spring', quantity: 150, description: 'Sweet tender green peas.' },
+            { id: 309, name: 'Cauliflower', category: 'seasonal', price: 50, farmerId: getFarmer('Cauliflower'), image: 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=400&q=80', type: 'Winter', quantity: 110, description: 'Fresh white cauliflower heads.' },
+            { id: 310, name: 'Eggplant', category: 'seasonal', price: 60, farmerId: getFarmer('Eggplant'), image: '../photos/eggplant.webp', type: 'Summer', quantity: 130, description: 'Glossy purple eggplant.' },
+            { id: 311, name: 'Zucchini', category: 'seasonal', price: 45, farmerId: getFarmer('Zucchini'), image: '../photos/zucchini.webp', type: 'Summer', quantity: 125, description: 'Tender green summer zucchinis.' },
+            { id: 312, name: 'Okra', category: 'seasonal', price: 70, farmerId: getFarmer('Okra'), image: '../photos/okra.jpg', type: 'Summer', quantity: 140, description: 'Crisp green ladies fingers.' },
+            { id: 313, name: 'Beetroot', category: 'seasonal', price: 50, farmerId: getFarmer('Beetroot'), image: '../photos/beetroot.webp', type: 'Winter', quantity: 120, description: 'Rich red nutrient-dense beets.' },
+            { id: 314, name: 'Cabbage', category: 'seasonal', price: 35, farmerId: getFarmer('Cabbage'), image: '../photos/cabbage.webp', type: 'Winter', quantity: 160, description: 'Fresh green cabbage heads.' },
+            { id: 315, name: 'Figs', category: 'seasonal', price: 200, farmerId: getFarmer('Figs'), image: '../photos/figs.jpeg', type: 'Autumn', quantity: 50, description: 'Sweet ripe purple figs.' }
         ];
 
-        // Initialize Products if not already initialized
-        if (!localStorage.getItem(this.PRODUCTS)) {
+        // Cache Invalidation Check
+        if (localStorage.getItem('agri_products_version') !== '2' || !localStorage.getItem(this.PRODUCTS)) {
             localStorage.setItem(this.PRODUCTS, JSON.stringify(products));
-            console.log('📦 Products initialized in localStorage.');
+            localStorage.setItem('agri_products_version', '2');
+            console.log('📦 Products initialized/updated in localStorage.');
         }
 
         // Initialize Default Orders for Demo
         const defaultOrders = [
             {
                 id: 1001,
-                date: new Date().toLocaleDateString(),
+                date: new Date().toISOString(),
                 customerId: 'c1',
                 status: 'Pending',
                 total: 160,
                 items: [
                     { id: 101, name: 'Organic Kale', price: 80, quantity: 2, farmerId: 'f1', image: '../photos/kale.jpeg' }
                 ],
-                paymentMethod: 'UPI'
+                paymentMethod: 'UPI',
+                deliveryAddress: '123 Farm Road, Green Valley, 380001'
             },
             {
                 id: 1002,
-                date: new Date().toLocaleDateString(),
+                date: new Date().toISOString(),
                 customerId: 'c1',
                 status: 'Accepted',
                 total: 60,
                 items: [
                     { id: 103, name: 'Fresh Spinach', price: 60, quantity: 1, farmerId: 'f1', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80' }
                 ],
-                paymentMethod: 'Card'
+                paymentMethod: 'Card',
+                deliveryAddress: '123 Farm Road, Green Valley, 380001'
             }
         ];
 
-        // Always reset orders to defaults for this demo request to ensure they appear
         const currentOrders = JSON.parse(localStorage.getItem(this.ORDERS));
         if (!currentOrders || currentOrders.length === 0) {
             localStorage.setItem(this.ORDERS, JSON.stringify(defaultOrders));
@@ -248,18 +301,14 @@ const DB = {
         if (!localStorage.getItem(this.CART)) {
             localStorage.setItem(this.CART, JSON.stringify([]));
         }
-    },
-
-    logConnection() {
-        console.log('%c Database Connected to Local Storage ', 'background: #222; color: #bada55; padding: 4px; border-radius: 4px;');
-        console.log('📦 Products:', this.getProducts().length);
-        console.log('👤 Users (Detailed View):');
-        console.table(this.getUsers()); // Displays all admins, farmers, and customers in a table
+        if (!localStorage.getItem(this.WISHLIST)) {
+            localStorage.setItem(this.WISHLIST, JSON.stringify([]));
+        }
     },
 
     // User Operations
     getUsers() {
-        return JSON.parse(localStorage.getItem(this.USERS));
+        return JSON.parse(localStorage.getItem(this.USERS)) || [];
     },
 
     async registerUser(user) {
@@ -282,6 +331,7 @@ const DB = {
             throw new Error('Email already exists');
         }
         user.id = user.id || Date.now().toString();
+        user.status = user.status || 'active';
         users.push(user);
         localStorage.setItem(this.USERS, JSON.stringify(users));
         return user;
@@ -299,18 +349,23 @@ const DB = {
         }
 
         const users = this.getUsers();
-        // Login with username. Compares password hashes, fallback to unhashed comparison.
         const user = users.find(u => u.username === username && u.role === role && (u.password === password || u.password === btoa(password)));
         if (user) {
-            localStorage.setItem(this.CURRENT_USER, JSON.stringify(user));
-            return user;
+            if (user.status === 'banned') {
+                throw new Error('Your account is suspended. Please contact admin.');
+            }
+            const { password, ...safeUser } = user;
+            localStorage.setItem(this.CURRENT_USER, JSON.stringify(safeUser));
+            return safeUser;
         }
         return null;
     },
 
     logout() {
         localStorage.removeItem(this.CURRENT_USER);
-        window.location.href = '../index.html';
+        const path = window.location.pathname;
+        const depth = path.includes('/customer/') || path.includes('/farmer/') || path.includes('/admin/') ? '../' : '';
+        window.location.href = depth + 'index.html';
     },
 
     getCurrentUser() {
@@ -319,7 +374,7 @@ const DB = {
 
     // Product Operations
     getProducts() {
-        return JSON.parse(localStorage.getItem(this.PRODUCTS));
+        return JSON.parse(localStorage.getItem(this.PRODUCTS)) || [];
     },
 
     async addProduct(product) {
@@ -344,16 +399,16 @@ const DB = {
 
     // Cart Operations
     getCart() {
-        return JSON.parse(localStorage.getItem(this.CART));
+        return JSON.parse(localStorage.getItem(this.CART)) || [];
     },
 
-    addToCart(product) {
+    addToCart(product, quantity = 1) {
         let cart = this.getCart();
-        const existing = cart.find(item => item.id === product.id);
+        const existing = cart.find(item => item.id.toString() === product.id.toString());
         if (existing) {
-            existing.quantity += 1;
+            existing.quantity += Number(quantity);
         } else {
-            cart.push({ ...product, quantity: 1 });
+            cart.push({ ...product, quantity: Number(quantity) });
         }
         localStorage.setItem(this.CART, JSON.stringify(cart));
         return cart;
@@ -365,12 +420,12 @@ const DB = {
 
     // Order Operations
     getOrders() {
-        return JSON.parse(localStorage.getItem(this.ORDERS));
+        return JSON.parse(localStorage.getItem(this.ORDERS)) || [];
     },
 
     async placeOrder(order) {
         order.id = order.id || Date.now();
-        order.date = order.date || new Date().toLocaleDateString();
+        order.date = order.date || new Date().toISOString();
         const user = this.getCurrentUser();
         if (user) order.customerId = user.id;
 
@@ -380,7 +435,19 @@ const DB = {
             console.error('Order API error, saving locally only:', err);
         }
 
-        // Update Local Storage immediately for UI responsiveness
+        // Deduct inventory stock on client side immediately
+        if (order.items && order.items.length > 0) {
+            const allProds = this.getProducts();
+            order.items.forEach(item => {
+                const prod = allProds.find(p => p.id.toString() === item.id.toString());
+                if (prod) {
+                    prod.quantity = Math.max(0, (prod.quantity || 100) - Number(item.quantity));
+                }
+            });
+            localStorage.setItem(this.PRODUCTS, JSON.stringify(allProds));
+        }
+
+        // Update Local Storage
         let orders = this.getOrders();
         orders.push(order);
         localStorage.setItem(this.ORDERS, JSON.stringify(orders));
@@ -388,7 +455,7 @@ const DB = {
 
         // Simulated Notifications: Order Placement
         if (window.showSimulatedSMS) {
-            window.showSimulatedSMS('AGRI-CNCT', `Order #${order.id} placed! Total amount: RS ${order.total}. Thank you for shopping with AgriConnect.`);
+            window.showSimulatedSMS('AGRI-CNCT', `Order #${order.id} placed! Total amount: ₹${order.total}. Thank you for shopping with AgriConnect.`);
         }
 
         // Notify matching farmers via WhatsApp
@@ -416,7 +483,7 @@ const DB = {
         }
 
         let orders = this.getOrders();
-        const order = orders.find(o => o.id == orderId); // Loose equality for string/number match
+        const order = orders.find(o => o.id.toString() === orderId.toString());
         if (order) {
             order.status = status;
             localStorage.setItem(this.ORDERS, JSON.stringify(orders));
@@ -433,12 +500,49 @@ const DB = {
             return true;
         }
         return false;
+    },
+
+    // Wishlist Operations
+    getWishlist() {
+        return JSON.parse(localStorage.getItem(this.WISHLIST)) || [];
+    },
+
+    addToWishlist(productId) {
+        let wishlist = this.getWishlist();
+        const idStr = productId.toString();
+        if (!wishlist.includes(idStr)) {
+            wishlist.push(idStr);
+            localStorage.setItem(this.WISHLIST, JSON.stringify(wishlist));
+            
+            const user = this.getCurrentUser();
+            if (user) {
+                API.addToWishlistAPI(user.id, productId).catch(err => console.warn(err));
+            }
+        }
+        return wishlist;
+    },
+
+    removeFromWishlist(productId) {
+        let wishlist = this.getWishlist();
+        const idStr = productId.toString();
+        wishlist = wishlist.filter(id => id !== idStr);
+        localStorage.setItem(this.WISHLIST, JSON.stringify(wishlist));
+
+        const user = this.getCurrentUser();
+        if (user) {
+            API.removeFromWishlistAPI(user.id, productId).catch(err => console.warn(err));
+        }
+        return wishlist;
+    },
+
+    isInWishlist(productId) {
+        const wishlist = this.getWishlist();
+        return wishlist.includes(productId.toString());
     }
 };
 
 // Initialize DB on load
 DB.init();
-DB.logConnection();
 
 // --- SMS & WhatsApp Notification Simulator Engine ---
 function showSimulatedNotification(type, sender, message) {
@@ -537,6 +641,9 @@ window.showToast = function(message, type = 'success', title = '') {
         container = document.createElement('div');
         container.id = 'toastContainer';
         container.className = 'toast-container';
+        // Add dynamic accessibility support
+        container.setAttribute('aria-live', 'polite');
+        container.setAttribute('role', 'status');
         document.body.appendChild(container);
     }
 
@@ -579,3 +686,16 @@ window.showToast = function(message, type = 'success', title = '') {
     }, 4000);
 };
 
+// Helper utility globally declared for customer detail screen
+window.escapeHTML = function(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+};

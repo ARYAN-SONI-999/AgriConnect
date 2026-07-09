@@ -10,37 +10,94 @@
     <style>
         .success-box {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             max-width: 600px;
-            margin: 50px auto;
+            margin: 30px auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: var(--shadow-md);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
         }
 
         .success-icon {
-            font-size: 5rem;
+            font-size: 4rem;
             color: var(--primary-green);
             margin-bottom: 20px;
             display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .order-summary-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
         }
     </style>
 </head>
 
 <body>
-    <div class="container fade-in">
-        <div class="success-box">
-            <span class="success-icon">✅</span>
-            <h1>Order Placed Successfully!</h1>
-            <p style="margin: 20px 0; color: var(--text-muted);">Thank you for supporting local farmers. Your fresh
-                produce will be delivered shortly.</p>
-            <a href="customer-home.html" class="btn btn-primary">Continue Shopping</a>
+
+    <nav class="navbar customer-header">
+        <div class="container nav-flex">
+            <a href="customer-home.html" class="logo">🌱 AgriConnect</a>
+            <div class="nav-links">
+                <a href="customer-home.html">Home</a>
+                <a href="profile.html">Profile</a>
+                <div class="auth-links"></div>
+            </div>
         </div>
-    </div>
+    </nav>
+
+    <main class="page-content">
+        <div class="container fade-in">
+            <div class="success-box">
+                <span class="success-icon">🎉</span>
+                <h1 style="color: var(--primary-green);">Order Placed Successfully!</h1>
+                <p style="margin: 15px 0; color: var(--text-muted);">Thank you for supporting local farmers! Your transaction has been approved.</p>
+                
+                <!-- Dynamic Order Details Card -->
+                <div id="placedOrderDetails" class="order-summary-card">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; margin-top:25px;">
+                    <a href="profile.html" class="btn btn-secondary" style="padding: 12px 24px;">View My Orders</a>
+                    <a href="customer-home.html" class="btn btn-primary" style="padding: 12px 24px;">Continue Shopping</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script src="../js/translate.js"></script>
-    <script src="../js/data.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/customer.js"></script>
+    <script src="../js/data.js?v=3"></script>
+    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/customer.js?v=3"></script>
+    <script>
+        checkAuth('customer');
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = DB.getCurrentUser();
+            const orders = DB.getOrders() || [];
+            const userOrders = user ? orders.filter(o => o.customerId === user.id) : [];
+            const lastOrder = userOrders[userOrders.length - 1];
+
+            const detailsDiv = document.getElementById('placedOrderDetails');
+            if (lastOrder) {
+                const itemsStr = (lastOrder.items || []).map(i => `${escapeHTML(i.name)} × ${i.quantity}kg`).join(', ');
+                detailsDiv.innerHTML = `
+                    <h3 style="margin-top:0; font-size:1.1rem; color:var(--text-dark); border-bottom:1px solid #e2e8f0; padding-bottom:8px;">📄 Order Summary</h3>
+                    <p style="margin:8px 0; font-size:0.9rem;"><strong>Order ID:</strong> #${lastOrder.id}</p>
+                    <p style="margin:8px 0; font-size:0.9rem;"><strong>Items:</strong> ${itemsStr}</p>
+                    <p style="margin:8px 0; font-size:0.9rem;"><strong>Total Paid:</strong> ₹${(lastOrder.total || 0).toLocaleString('en-IN')}</p>
+                    <p style="margin:8px 0; font-size:0.9rem;"><strong>Delivery Address:</strong> ${escapeHTML(lastOrder.deliveryAddress || 'Local Address')}</p>
+                    <p style="margin:8px 0; font-size:0.9rem;"><strong>Order Status:</strong> <span class="badge badge-yellow">${lastOrder.status}</span></p>
+                `;
+            } else {
+                detailsDiv.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>
