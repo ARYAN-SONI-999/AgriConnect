@@ -61,6 +61,7 @@
     </div>
 
     <script src="../js/translate.js"></script>
+    <script src="../js/data_api.js"></script>
     <script src="../js/data.js"></script>
     <script src="../js/validation.js"></script>
     <script src="../js/auth.js"></script>
@@ -86,7 +87,13 @@
             const hashedPassword = Validation.hashPassword(password);
 
             try {
-                await DB.registerUser({ name, username, email, mobile, password: hashedPassword, role: 'customer' });
+                const result = await API.register({ name, username, email, mobile, password: hashedPassword, role: 'customer' });
+                const users = DB.getUsers() || [];
+                const savedUser = { ...(result.user || {}) };
+                if (!users.some(u => u.id === savedUser.id || u.username === savedUser.username)) {
+                    users.push(savedUser);
+                    localStorage.setItem(DB.USERS, JSON.stringify(users));
+                }
                 showToast('Registration Successful! Redirecting...', 'success');
                 setTimeout(() => {
                     window.location.href = 'customer-login.html';

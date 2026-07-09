@@ -1,6 +1,6 @@
 /**
  * AgriConnect API Service Layer
- * Interfaces with Express/SQLite backend server (http://localhost:3000).
+ * Interfaces with Express JSON backend server (http://localhost:3000).
  */
 
 const API_BASE = 'http://localhost:3000/api';

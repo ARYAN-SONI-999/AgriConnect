@@ -73,9 +73,11 @@ function renderAdminDashboard() {
     // Fetch live data from server
     Promise.all([
         API.getUsers(),
+        API.getProducts(),
         API.getOrders()
-    ]).then(([users, orders]) => {
+    ]).then(([users, products, orders]) => {
         localStorage.setItem(DB.USERS, JSON.stringify(users));
+        localStorage.setItem(DB.PRODUCTS, JSON.stringify(products));
         localStorage.setItem(DB.ORDERS, JSON.stringify(orders));
 
         document.getElementById('farmerCount').textContent = users.filter(u => u.role === 'farmer').length;

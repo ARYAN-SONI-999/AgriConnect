@@ -1,11 +1,11 @@
 /**
  * AgriConnect Data Manager
- * Handles data persistence using localStorage and connects to SQLite backend.
+ * Handles local cache and synchronizes with Express JSON backend.
  */
 
 const API_BASE = 'http://localhost:3000/api';
 
-const API = {
+const API_FALLBACK = {
     async login(username, password, role) {
         const res = await fetch(`${API_BASE}/login`, {
             method: 'POST',
@@ -122,6 +122,11 @@ const API = {
         return await res.json();
     }
 };
+
+const apiService = (typeof API !== 'undefined') ? API : API_FALLBACK;
+if (typeof window !== 'undefined' && !window.API) {
+    window.API = apiService;
+}
 
 
 const DB = {
@@ -248,6 +253,8 @@ const DB = {
         if (!localStorage.getItem(this.CART)) {
             localStorage.setItem(this.CART, JSON.stringify([]));
         }
+
+        this.syncFromServer();
     },
 
     logConnection() {
@@ -255,6 +262,21 @@ const DB = {
         console.log('📦 Products:', this.getProducts().length);
         console.log('👤 Users (Detailed View):');
         console.table(this.getUsers()); // Displays all admins, farmers, and customers in a table
+    },
+
+    async syncFromServer() {
+        try {
+            const [users, products, orders] = await Promise.all([
+                apiService.getUsers(),
+                apiService.getProducts(),
+                apiService.getOrders()
+            ]);
+            localStorage.setItem(this.USERS, JSON.stringify(users || []));
+            localStorage.setItem(this.PRODUCTS, JSON.stringify(products || []));
+            localStorage.setItem(this.ORDERS, JSON.stringify(orders || []));
+        } catch (e) {
+            console.warn('Server sync unavailable, using local cache only:', e);
+        }
     },
 
     // User Operations
@@ -265,7 +287,7 @@ const DB = {
     async registerUser(user) {
         const cachedPassword = user.password;
         try {
-            const res = await API.register(user);
+            const res = await apiService.register(user);
             if (res && res.success) {
                 user = res.user;
                 user.password = cachedPassword;
@@ -289,7 +311,7 @@ const DB = {
 
     async login(username, password, role) {
         try {
-            const res = await API.login(username, password, role);
+            const res = await apiService.login(username, password, role);
             if (res && res.success) {
                 localStorage.setItem(this.CURRENT_USER, JSON.stringify(res.user));
                 return res.user;
@@ -324,7 +346,7 @@ const DB = {
 
     async addProduct(product) {
         try {
-            const res = await API.addProduct(product);
+            const res = await apiService.addProduct(product);
             if (res && res.id) {
                 product.id = res.id;
             }
@@ -375,7 +397,7 @@ const DB = {
         if (user) order.customerId = user.id;
 
         try {
-            await API.addOrder(order);
+            await apiService.addOrder(order);
         } catch (err) {
             console.error('Order API error, saving locally only:', err);
         }
@@ -410,7 +432,7 @@ const DB = {
 
     async updateOrderStatus(orderId, status) {
         try {
-            await API.updateOrderStatus(orderId, status);
+            await apiService.updateOrderStatus(orderId, status);
         } catch (err) {
             console.error('Order status sync server error, updating locally only:', err);
         }
@@ -578,4 +600,3 @@ window.showToast = function(message, type = 'success', title = '') {
         }, 400);
     }, 4000);
 };
-
